@@ -10,6 +10,7 @@ package org.solent.ood.creditcardchecker.rest;
  * @author gallenc
  */
 import java.util.List;
+import java.util.logging.Level;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -37,6 +38,8 @@ public class RestService {
     // note that log name will be org.solent.ood.creditcardchecker.rest.RestService
     final static Logger LOG = LogManager.getLogger(RestService.class);
 
+    //Properties preferences = new Properties();
+
     /**
      * this is a very simple rest test message which only returns a string
      *
@@ -47,6 +50,7 @@ public class RestService {
     @GET
     public String test() {
 
+        LOG.info("initializing - trying to load configuration file ...");
         LOG.debug("rest test called");
         return "Hello, rest!";
     }
@@ -94,8 +98,18 @@ public class RestService {
         try {
             LOG.debug("/validateCard called creditCArd:" + creditCard);
 
-            //TODO add code here to validate the card
-            throw new UnsupportedOperationException("post /validateCard NOT IMPLEMENTED - TODO IMPLEMENT THIS METHOD");
+            ReplyMessage replyMessage = new ReplyMessage();
+            CardValidationResult result = RegexCardValidator.isValid(creditCard.getCardnumber());
+            replyMessage.setCardValidationResult(result);
+
+            if (result.isValid()) {
+                replyMessage.setCode(Response.Status.OK.getStatusCode());
+
+                return Response.status(Response.Status.OK).entity(replyMessage).build();
+            } else {
+                replyMessage.setCode(Response.Status.BAD_REQUEST.getStatusCode());
+                return Response.status(Response.Status.BAD_REQUEST).entity(replyMessage).build();
+            }
 
         } catch (Exception ex) {
             LOG.error("error calling POST /validateCard ", ex);

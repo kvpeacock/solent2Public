@@ -17,11 +17,11 @@ import org.springframework.web.context.WebApplicationContext;
 @Import(ServiceConfiguration.class)
 @PropertySource("classpath:persistence-app.properties")
 public class SpringBootJspConfiguration {
-
-    @Bean
-    ShoppingService getShoppingService() {
-        return ServiceObjectFactory.getShoppingService();
-    }
+//
+//    @Bean
+//    ShoppingService getShoppingService() {
+//        return ServiceObjectFactory.getShoppingService();
+//    }
 
     // see https://www.baeldung.com/spring-mvc-session-attributes
     @Bean

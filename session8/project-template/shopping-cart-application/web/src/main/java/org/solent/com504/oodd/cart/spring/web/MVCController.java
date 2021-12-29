@@ -2,6 +2,7 @@ package org.solent.com504.oodd.cart.spring.web;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -27,6 +28,7 @@ public class MVCController {
 
     final static Logger LOG = LogManager.getLogger(MVCController.class);
 
+                       
     // this could be done with an autowired bean
     //private ShoppingService shoppingService = WebObjectFactory.getShoppingService();
     @Autowired
@@ -83,18 +85,24 @@ public class MVCController {
         if (action == null) {
             // do nothing but show page
         } else if ("addItemToCart".equals(action)) {
-            ShoppingItem shoppingItem = shoppingService.getNewItemByName(itemName);
+            message = "Attempting to add " + itemName + " to cart.";
+            LOG.info(message);
+                    
+            ShoppingItem shoppingItem = shoppingService.getNewItemByUUID(itemUuid);
             if (shoppingItem == null) {
-                message = "cannot add unknown " + itemName + " to cart";
+                message = "Cannot add unknown item " + itemName + " to cart";
+                LOG.error(message);
             } else {
-                message = "adding " + itemName + " to cart price= " + shoppingItem.getPrice();
+                message = "Added " + itemName + " to cart";
                 shoppingCart.addItemToCart(shoppingItem);
+                LOG.info(message);
             }
         } else if ("removeItemFromCart".equals(action)) {
-            message = "removed " + itemName + " from cart";
+            message = "Removed " + itemName + " from cart";
             shoppingCart.removeItemFromCart(itemUuid);
         } else {
-            message = "unknown action=" + action;
+            message = "Unknown action=" + action;
+            LOG.error(message);
         }
 
         List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
@@ -136,6 +144,27 @@ public class MVCController {
         model.addAttribute("selectedPage", "contact");
         return "contact";
     }
+    
+    @RequestMapping(value = "/catalog", method = {RequestMethod.GET, RequestMethod.POST})
+    public String catalogList(Model model, HttpSession session) {
+        // get sessionUser from session
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
+        
+//        List<ShoppingItem> availableItems = new ArrayList();
+//        ShoppingItem item = new ShoppingItem();
+//        item.setName("Apple");
+//        availableItems.add(item);
+        
+        List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
+        
+        model.addAttribute("availableItems", availableItems);
+        
+        // used to set tab selected
+        model.addAttribute("selectedPage", "admin");
+        return "catalog";
+    }
+
 
 
     /*

@@ -22,6 +22,7 @@
 
         <tr>
             <th>Item Name</th>
+            <th>UUID</th>
             <th>Price</th>
             <th></th>
         </tr>
@@ -30,12 +31,14 @@
 
             <tr>
                 <td>${item.name}</td>
+                <td>${item.uuid}</td>
                 <td>${item.price}</td>
                 <td></td>
                 <td>
                     <!-- post avoids url encoded parameters -->
                     <form action="./home" method="get">
                         <input type="hidden" name="itemName" value="${item.name}">
+                        <input type="hidden" name="itemUUID" value="${item.uuid}">
                         <input type="hidden" name="action" value="addItemToCart">
                         <button type="submit" >Add Item</button>
                     </form> 
@@ -51,6 +54,7 @@
         <tr>
             <th>Item Name</th>
             <th>Price</th>
+            <th>1UUID</th>
             <th>Quantity</th>
         </tr>
 
@@ -59,6 +63,7 @@
             <tr>
                 <td>${item.name}</td>
                 <td>${item.price}</td>
+                <td>${item.uuid}</td>
                 <td>${item.quantity}</td>
                 <td>
                     <!-- post avoids url encoded parameters -->

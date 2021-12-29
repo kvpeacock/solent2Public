@@ -5,13 +5,19 @@
  */
 package org.solent.com504.oodd.cart.spring.service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import javax.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.solent.com504.oodd.cart.dao.impl.UserRepository;
+import org.solent.com504.oodd.cart.dao.impl.ShoppingItemCatalogRepository;
+import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
+//import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
 import org.solent.com504.oodd.cart.model.dto.User;
 import org.solent.com504.oodd.cart.model.dto.UserRole;
+import org.solent.com504.oodd.cart.service.ShoppingCartImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,11 +25,12 @@ import org.springframework.stereotype.Component;
 /**
  *
  * @author cgallen
+ * @author kpeacock
  */
 @Component
 public class PopulateDatabaseOnStart {
 
-    private static final Logger LOG = LogManager.getLogger(PopulateDatabaseOnStart.class);
+    final static Logger LOG = LogManager.getLogger(PopulateDatabaseOnStart.class);
 
     private static final String DEFAULT_ADMIN_USERNAME = "globaladmin";
     private static final String DEFAULT_ADMIN_PASSWORD = "globaladmin";
@@ -33,9 +40,13 @@ public class PopulateDatabaseOnStart {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private ShoppingItemCatalogRepository shoppingItemCatalogRepository;
 
     @PostConstruct
     public void initDatabase() {
+        
         LOG.debug("initialising database with startup values");
 
         // initialising admin and normal user if dont exist
@@ -66,6 +77,29 @@ public class PopulateDatabaseOnStart {
         } else {
             LOG.info("defaultuser already exists. Not creating new :" + defaultUser);
         }
+        
+
+//        //ShoppingItem alligator = new ShoppingItem("pet alligator", 65.00);
+//        //shoppingItemCatalogRepository.save(alligator);
+        
+        List<ShoppingItem> itemList = Arrays.asList(new ShoppingItem("house", 20000.00),
+        new ShoppingItem("hen", 5.00),
+        new ShoppingItem("car", 5000.00),
+        new ShoppingItem("pet alligator", 65.00),
+        new ShoppingItem("repo", 60.00));
+
+        for(ShoppingItem item:itemList){
+            item.setUuid(UUID.randomUUID().toString());
+            shoppingItemCatalogRepository.save(item);
+
+        }
+            
+         
+    
+        
+        
+        
+        
 
         LOG.debug("database initialised");
     }

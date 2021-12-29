@@ -53,6 +53,8 @@ public class ShoppingServiceImpl implements ShoppingService {
     @Override
     public ShoppingItem getNewItemByName(String name) {
         ShoppingItem templateItem = itemMap.get(name);
+        
+        if (templateItem==null)return null;
         ShoppingItem item = new ShoppingItem();
         item.setName(name);
         item.setPrice(templateItem.getPrice());

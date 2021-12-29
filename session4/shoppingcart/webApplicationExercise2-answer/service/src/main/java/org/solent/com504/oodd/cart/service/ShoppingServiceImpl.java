@@ -11,11 +11,14 @@ import java.util.List;
 import java.util.UUID;
 import org.solent.com504.oodd.cart.model.service.ShoppingCart;
 import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
+import org.solent.com504.oodd.cart.model.service.ShoppingCart;
+import org.solent.com504.oodd.cart.model.dto.InvoiceItem;
 import org.solent.com504.oodd.cart.model.service.ShoppingService;
 
 /**
  *
  * @author cgallen
+ * @author kpeacock
  */
 public class ShoppingServiceImpl implements ShoppingService {
 
@@ -24,7 +27,7 @@ public class ShoppingServiceImpl implements ShoppingService {
     private List<ShoppingItem> itemlist = Arrays.asList(new ShoppingItem("house", 20000.00),
             new ShoppingItem("hen", 5.00),
             new ShoppingItem("car", 5000.00),
-            new ShoppingItem("pet alligator", 65.00)
+            new ShoppingItem("pet ", 65.00)
     );
 
     public ShoppingServiceImpl() {
@@ -42,9 +45,14 @@ public class ShoppingServiceImpl implements ShoppingService {
 
     @Override
     public boolean purchaseItems(ShoppingCart shoppingCart) {
-        System.out.println("purchased items");
+        System.out.println("purchased ite");
+        InvoiceItem test = new InvoiceItem("EEEE",5,5.0);
+        
         for (ShoppingItem shoppingItem : shoppingCart.getShoppingCartItems()) {
-            System.out.println(shoppingItem);
+            System.out.println(shoppingItem.getName());
+            System.out.println(shoppingItem.getQuantity());
+            System.out.println((shoppingItem.getQuantity()*shoppingItem.getPrice()));
+            System.out.println(test.toString());
         }
 
         return true;

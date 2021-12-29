@@ -44,6 +44,7 @@ public class CardCheckerClient {
         Client client = ClientBuilder.newClient(new ClientConfig().register(
                 new LoggingFeature(java.util.logging.Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME),
                         Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000)));
+        
 
         // allows client to decode json
         client.register(JacksonJsonProvider.class);

@@ -11,6 +11,7 @@ import java.util.List;
 /**
  *
  * @author cgallen
+ * @author kpeacock
  */
 public interface ShoppingService {
     
@@ -18,6 +19,6 @@ public interface ShoppingService {
         
         public boolean purchaseItems(ShoppingCart shoppingCart);
         
-        public ShoppingItem getNewItemByName(String uuid);
+        public ShoppingItem getNewItemByUUID(String uuid);
 
 }

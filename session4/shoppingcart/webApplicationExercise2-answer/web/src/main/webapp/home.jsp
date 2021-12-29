@@ -37,6 +37,9 @@
     } else if ("removeItemFromCart".equals(action)) {
         message = "removed " + itemName + " from cart";
         shoppingCart.removeItemFromCart(itemUuid);
+    } else if ("purchaseItems".equals(action)) {
+        message = "purchased items";
+        shoppingService.purchaseItems(shoppingCart);
     } else {
         message = "unknown action=" + action;
     }
@@ -107,6 +110,14 @@
             <tr>
                 <td>TOTAL</td>
                 <td><%=shoppingCart.getTotal()%></td>
+            </tr>
+            <tr>
+                <td>
+                    <form action="./home.jsp" method="post">
+                        <input type="hidden" name="action" value="purchaseItems">
+                        <button type="submit" >Purchase Items</button>
+                    </form> 
+                </td>
             </tr>
         </table>
 

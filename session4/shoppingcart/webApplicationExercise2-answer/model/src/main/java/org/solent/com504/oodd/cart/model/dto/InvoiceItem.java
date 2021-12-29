@@ -4,39 +4,30 @@
  * and open the template in the editor.
  */
 package org.solent.com504.oodd.cart.model.dto;
-
-import java.util.UUID;
+import java.time.LocalDateTime;
+import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
 
 /**
  *
- * @author cgallen
+ * @author pc
  */
-public class ShoppingItem {
-    
-    private String uuid=null;
+public class InvoiceItem {
     private String name=null;
     private Integer quantity=0;
     private Double price=0.0;
+    private Double totalPrice=0.0;
     
-    public ShoppingItem(){
-        
+    public InvoiceItem(){
     }
-
-    public ShoppingItem(String name, Double price) {
+    
+    public InvoiceItem(String name, Integer quantity, Double price) {
         this.name = name;
+        this.quantity = quantity;
         this.price = price;
+        this.totalPrice = price*quantity;
     }
-
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuuid) {
-        this.uuid = uuuid;
-    }
-
-    public String getName() {
+    
+        public String getName() {
         return name;
     }
 
@@ -59,12 +50,20 @@ public class ShoppingItem {
     public void setPrice(Double price) {
         this.price = price;
     }
+    
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
 
     @Override
     public String toString() {
-        return "ShoppingItem{" + "uuuid=" + uuid + ", name=" + name + ", quantity=" + quantity + ", price=" + price + '}';
+        return "InvoiceItem {name=" + name + ", quantity=" + quantity + ", price=" + price + ", total price =" + totalPrice +'}';
     }
     
-            
     
 }
+

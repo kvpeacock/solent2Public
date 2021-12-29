@@ -31,17 +31,45 @@ public class ShoppingCartImpl implements ShoppingCart {
 
     @Override
     public void addItemToCart(ShoppingItem shoppingItem) {
-        itemMap.put(shoppingItem.getUuid(), shoppingItem);
+        // itemMap.put(shoppingItem.getUuid(), shoppingItem);
+        
+        // ANSWER
+        boolean itemExists = false;
+        for (String itemUUID : itemMap.keySet()) {
+            ShoppingItem shoppingCartItem = itemMap.get(itemUUID);
+            if (shoppingCartItem.getName().equals(shoppingItem.getName())){
+                Integer q = shoppingCartItem.getQuantity();
+                shoppingCartItem.setQuantity(q+1);
+                itemExists = true;
+                break;
+            }
+        }
+        if (!itemExists){
+            shoppingItem.setQuantity(1);
+            itemMap.put(shoppingItem.getUuid(), shoppingItem);
+        }
     }
 
     @Override
     public void removeItemFromCart(String itemUuid) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // ANSWER
+        itemMap.remove(itemUuid);
     }
 
     @Override
     public double getTotal() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // ANSWER
+        double total = 0;
+
+        for (String itemUUID : itemMap.keySet()) {
+            ShoppingItem shoppingCartItem = itemMap.get(itemUUID);
+            total = total + shoppingCartItem.getPrice() * shoppingCartItem.getQuantity();
+        }
+
+        return total;
+
     }
 
 }
