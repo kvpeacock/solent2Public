@@ -19,7 +19,7 @@
         <div style="color:red;">${errorMessage}</div>
         <div style="color:green;">${message}</div>
 
-        <form action="./viewModifyUser" method="GET">
+        <form action="./viewModifyItem" method="POST">
             <table class="table">
                 <thead>
                 </thead>
@@ -30,8 +30,16 @@
                         <td>${modifyItem.uuid}</td>
                     </tr>
                     <tr>
-                        <td>First Name</td>
-                        <td><input type="text" name="firstName" value="${modifyItem.name}" /></td>
+                        <td>Name</td>
+                        <td><input type="text" required name="name" value="${modifyItem.name}" /></td>
+                    </tr>
+                    <tr>
+                        <td>Price</td>
+                        <td><input type="number" min="0" step="0.01" name="price" value="${modifyItem.price}" /></td>
+                    </tr>
+                    <tr>
+                        <td>Stock</td>
+                        <td><input type="number" min="0" name="stock" value="${modifyItem.stock}" /></td>
                     </tr>
                 </tbody>
             </table>

@@ -93,6 +93,7 @@ public class MVCController {
                 message = "Cannot add unknown item " + itemName + " to cart";
                 LOG.error(message);
             } else {
+                LOG.error(shoppingItem.getStock());
                 message = "Added " + itemName + " to cart";
                 shoppingCart.addItemToCart(shoppingItem);
                 LOG.info(message);

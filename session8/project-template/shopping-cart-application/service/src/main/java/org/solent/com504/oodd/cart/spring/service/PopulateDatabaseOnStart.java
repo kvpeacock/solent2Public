@@ -90,6 +90,7 @@ public class PopulateDatabaseOnStart {
 
         for(ShoppingItem item:itemList){
             item.setUuid(UUID.randomUUID().toString());
+            item.setStock(5);
             shoppingItemCatalogRepository.save(item);
 
         }

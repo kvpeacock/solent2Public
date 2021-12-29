@@ -22,8 +22,8 @@
 
         <tr>
             <th>Item Name</th>
-            <th>UUID</th>
             <th>Price</th>
+            <th>Stock</th>
             <th></th>
         </tr>
 
@@ -31,8 +31,8 @@
 
             <tr>
                 <td>${item.name}</td>
-                <td>${item.uuid}</td>
                 <td>${item.price}</td>
+                <td>${item.stock}</td>
                 <td></td>
                 <td>
                     <!-- post avoids url encoded parameters -->
@@ -54,7 +54,6 @@
         <tr>
             <th>Item Name</th>
             <th>Price</th>
-            <th>1UUID</th>
             <th>Quantity</th>
         </tr>
 
@@ -63,7 +62,6 @@
             <tr>
                 <td>${item.name}</td>
                 <td>${item.price}</td>
-                <td>${item.uuid}</td>
                 <td>${item.quantity}</td>
                 <td>
                     <!-- post avoids url encoded parameters -->

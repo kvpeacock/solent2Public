@@ -60,6 +60,7 @@ public class ShoppingServiceImpl implements ShoppingService {
         ShoppingItem item = new ShoppingItem();
         item.setName(templateItem.getName());
         item.setPrice(templateItem.getPrice());
+        item.setStock(templateItem.getStock());
         item.setQuantity(0);
         item.setUuid(UUID.randomUUID().toString());
         return item;

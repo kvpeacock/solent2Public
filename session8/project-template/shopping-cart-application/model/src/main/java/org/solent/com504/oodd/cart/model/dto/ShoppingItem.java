@@ -13,6 +13,7 @@ import javax.persistence.Id;
 /**
  *
  * @author cgallen
+ * @author kpeacock
  */
 @Entity
 public class ShoppingItem {
@@ -22,6 +23,7 @@ public class ShoppingItem {
     private String name=null;
     private Integer quantity=0;
     private Double price=0.0;
+    private Integer stock=0;
     
     public ShoppingItem(){
         
@@ -72,6 +74,14 @@ public class ShoppingItem {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+    
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
     }
 
     @Override

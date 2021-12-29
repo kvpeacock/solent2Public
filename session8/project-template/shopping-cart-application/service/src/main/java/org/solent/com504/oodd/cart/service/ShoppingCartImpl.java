@@ -10,29 +10,23 @@ import java.util.HashMap;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.solent.com504.oodd.cart.dao.impl.ShoppingItemCatalogRepository;
 import org.solent.com504.oodd.cart.model.service.ShoppingCart;
 import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
  * @author cgallen
+ * @author kpeacock
  */
 public class ShoppingCartImpl implements ShoppingCart {
     
-       /* Get actual class name to be printed on */
-    final static Logger log = LogManager.getLogger(ShoppingCartImpl.class.getName());
-    
-    @Autowired
-    private ShoppingItemCatalogRepository shoppingItemCatalogRepository;
+    final static Logger LOG = LogManager.getLogger(ShoppingCartImpl.class);
 
     private HashMap<String, ShoppingItem> itemMap = new HashMap<String, ShoppingItem>();
 
     @Override
     public List<ShoppingItem> getShoppingCartItems() {
         List<ShoppingItem> itemlist = new ArrayList();
-        //List<ShoppingItem> itemList = shoppingItemCatalogRepository.findAll();
         for (String itemUUID : itemMap.keySet()) {
             ShoppingItem shoppingCartItem = itemMap.get(itemUUID);
             itemlist.add(shoppingCartItem);
@@ -42,18 +36,23 @@ public class ShoppingCartImpl implements ShoppingCart {
 
     @Override
     public void addItemToCart(ShoppingItem shoppingItem) {
-        
+
         boolean itemExists = false;
+        boolean outOfStock = false;
         for (String itemUUID : itemMap.keySet()) {
             ShoppingItem shoppingCartItem = itemMap.get(itemUUID);
             if (shoppingCartItem.getName().equals(shoppingItem.getName())){
+                if (shoppingCartItem.getStock() <= shoppingCartItem.getQuantity()){
+                    outOfStock= true;
+                    break;
+                }
                 Integer q = shoppingCartItem.getQuantity();
                 shoppingCartItem.setQuantity(q+1);
                 itemExists = true;
                 break;
             }
         }
-        if (!itemExists){
+        if (!itemExists && !outOfStock){
             shoppingItem.setQuantity(1);
             itemMap.put(shoppingItem.getUuid(), shoppingItem);
         }
