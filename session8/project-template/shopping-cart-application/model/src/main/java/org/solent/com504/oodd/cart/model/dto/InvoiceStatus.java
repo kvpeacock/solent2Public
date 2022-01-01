@@ -1,4 +1,6 @@
 /*
+ * Copyright 2021 pc.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.solent.com504.oodd.cart.dao.impl;
+package org.solent.com504.oodd.cart.model.dto;
 
-import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
-@Repository
-public interface ShoppingItemCatalogRepository  extends JpaRepository<ShoppingItem,Long>{
-    @Query("select s from ShoppingItem s where s.name = :name")
-    public ShoppingItem findByName(@Param("name")String name);
+/**
+ *
+ * @author pc
+ */
+public enum InvoiceStatus {
+    FULFILLED, REJECTED, PENDING
 }
+
+

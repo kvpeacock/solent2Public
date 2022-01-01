@@ -7,19 +7,19 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@page import="org.solent.com504.oodd.cart.model.dto.User"%>
 <%@page import="org.solent.com504.oodd.cart.model.dto.UserRole"%>
-<c:set var = "selectedPage" value = "items" scope="request"/>
+<c:set var = "selectedPage" value = "invoice" scope="request"/>
 <jsp:include page="header.jsp" />
 
 <!-- Begin page content -->
 <main role="main" class="container">
 
     <div>
-        <H1>Item Details ${modifyItem.name} </H1>
+        <H1>Invoice Details ${modifyItem.name} </H1>
         <!-- print error message if there is one -->
         <div style="color:red;">${errorMessage}</div>
         <div style="color:green;">${message}</div>
 
-        <form action="./viewModifyItem" method="POST">
+        <form action="./viewModifyInvoice" method="POST">
             <table class="table">
                 <thead>
                 </thead>
@@ -38,7 +38,7 @@
                         <td><input type="number" min="0" step="0.01" name="price" value="${modifyItem.price}" /></td>
                     </tr>
                     <tr>
-                        <td>Stock</td>
+                        <td>Quantity</td>
                         <td><input type="number" min="0" name="stock" value="${modifyItem.stock}" /></td>
                     </tr>
                 </tbody>

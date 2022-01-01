@@ -63,6 +63,7 @@
                 <td>${item.name}</td>
                 <td>${item.price}</td>
                 <td>${item.quantity}</td>
+                
                 <td>
                     <!-- post avoids url encoded parameters -->
                     <form action="./home" method="post">
@@ -77,6 +78,16 @@
         <tr>
             <td>TOTAL</td>
             <td>${shoppingcartTotal}</td>
+        </tr>
+        <tr>
+            <td>
+                <form action="./home" method="post">
+                    <input type="hidden" name="cart" value="${shoppingCartItems}">
+                    <input type="hidden" name="action" value="purchaseItems">
+                    <button type="submit" >Purchase Items</button>
+                </form> 
+            </td>
+
         </tr>
     </table>
 

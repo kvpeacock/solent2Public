@@ -1,7 +1,15 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.solent.com504.oodd.cart.service;
 
@@ -35,27 +43,30 @@ public class ShoppingCartImpl implements ShoppingCart {
     }
 
     @Override
-    public void addItemToCart(ShoppingItem shoppingItem) {
+    public String addItemToCart(ShoppingItem shoppingItem) {
 
         boolean itemExists = false;
-        boolean outOfStock = false;
         for (String itemUUID : itemMap.keySet()) {
             ShoppingItem shoppingCartItem = itemMap.get(itemUUID);
-            if (shoppingCartItem.getName().equals(shoppingItem.getName())){
-                if (shoppingCartItem.getStock() <= shoppingCartItem.getQuantity()){
-                    outOfStock= true;
-                    break;
+            if (shoppingCartItem==null) return"Not Found";
+            else if (shoppingCartItem.getName().equals(shoppingItem.getName())){
+                if (shoppingItem.getStock() <= shoppingCartItem.getQuantity()){
+                    return "Out of Stock";
                 }
                 Integer q = shoppingCartItem.getQuantity();
                 shoppingCartItem.setQuantity(q+1);
-                itemExists = true;
-                break;
+                return "";
             }
         }
-        if (!itemExists && !outOfStock){
-            shoppingItem.setQuantity(1);
-            itemMap.put(shoppingItem.getUuid(), shoppingItem);
+        if (!itemExists){
+            if (shoppingItem.getStock()>0){
+                shoppingItem.setQuantity(1);
+                itemMap.put(shoppingItem.getUuid(), shoppingItem);
+                return "";
+            }
+            else return "Out of Stock";
         }
+        return "Item Not Found";
     }
 
     @Override

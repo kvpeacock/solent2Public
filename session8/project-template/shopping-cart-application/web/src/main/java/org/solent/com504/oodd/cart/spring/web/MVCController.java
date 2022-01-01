@@ -1,19 +1,38 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.solent.com504.oodd.cart.spring.web;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.solent.com504.oodd.cart.dao.impl.InvoiceItemRepository;
+import org.solent.com504.oodd.cart.dao.impl.InvoiceRepository;
+import org.solent.com504.oodd.cart.dao.impl.ShoppingItemCatalogRepository;
+import org.solent.com504.oodd.cart.model.dto.Invoice;
 import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
 import org.solent.com504.oodd.cart.model.dto.User;
 import org.solent.com504.oodd.cart.model.dto.UserRole;
 import org.solent.com504.oodd.cart.model.service.ShoppingCart;
 import org.solent.com504.oodd.cart.model.service.ShoppingService;
-import org.solent.com504.oodd.cart.web.WebObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +40,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.solent.com504.oodd.cart.dao.impl.InvoiceRepository;
+import org.solent.com504.oodd.cart.dao.impl.ShoppingItemCatalogRepository;
+import org.solent.com504.oodd.cart.model.dto.User;
+import org.solent.com504.oodd.cart.dao.impl.UserRepository;
+import org.solent.com504.oodd.cart.model.dto.Invoice;
+import org.solent.com504.oodd.cart.model.dto.InvoiceItem;
+import org.solent.com504.oodd.cart.model.dto.InvoiceStatus;
+import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
 
 @Controller
 @RequestMapping("/")
@@ -28,16 +55,23 @@ public class MVCController {
 
     final static Logger LOG = LogManager.getLogger(MVCController.class);
 
-                       
-    // this could be done with an autowired bean
-    //private ShoppingService shoppingService = WebObjectFactory.getShoppingService();
     @Autowired
     ShoppingService shoppingService = null;
 
-    // note that scope is session in configuration
-    // so the shopping cart is unique for each web session
     @Autowired
     ShoppingCart shoppingCart = null;
+    
+    @Autowired
+    private ShoppingItemCatalogRepository shoppingItemCatalogRepository;
+
+    @Autowired
+    private InvoiceRepository invoiceRepository;
+    
+    @Autowired
+    private InvoiceItemRepository invoiceItemRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     private User getSessionUser(HttpSession session) {
         User sessionUser = (User) session.getAttribute("sessionUser");
@@ -60,6 +94,7 @@ public class MVCController {
     public String viewCart(@RequestParam(name = "action", required = false) String action,
             @RequestParam(name = "itemName", required = false) String itemName,
             @RequestParam(name = "itemUUID", required = false) String itemUuid,
+            @RequestParam(name = "cart", required = false) String cart,
             Model model,
             HttpSession session) {
 
@@ -73,37 +108,89 @@ public class MVCController {
         String message = "";
         String errorMessage = "";
 
-        // note that the shopping cart is is stored in the sessionUser's session
-        // so there is one cart per sessionUser
-//        ShoppingCart shoppingCart = (ShoppingCart) session.getAttribute("shoppingCart");
-//        if (shoppingCart == null) synchronized (this) {
-//            if (shoppingCart == null) {
-//                shoppingCart = WebObjectFactory.getNewShoppingCart();
-//                session.setAttribute("shoppingCart", shoppingCart);
-//            }
-//        }
-        if (action == null) {
+        if (null == action) {
             // do nothing but show page
-        } else if ("addItemToCart".equals(action)) {
-            message = "Attempting to add " + itemName + " to cart.";
-            LOG.info(message);
-                    
-            ShoppingItem shoppingItem = shoppingService.getNewItemByUUID(itemUuid);
-            if (shoppingItem == null) {
-                message = "Cannot add unknown item " + itemName + " to cart";
-                LOG.error(message);
-            } else {
-                LOG.error(shoppingItem.getStock());
-                message = "Added " + itemName + " to cart";
-                shoppingCart.addItemToCart(shoppingItem);
+        } else switch (action) {
+            case "addItemToCart":
+                message = "Attempting to add " + itemName + " to cart.";
                 LOG.info(message);
-            }
-        } else if ("removeItemFromCart".equals(action)) {
-            message = "Removed " + itemName + " from cart";
-            shoppingCart.removeItemFromCart(itemUuid);
-        } else {
-            message = "Unknown action=" + action;
-            LOG.error(message);
+                ShoppingItem shoppingItem = shoppingService.getNewItemByName(itemName);
+                if (shoppingItem == null) {
+                    message="";
+                    errorMessage = "Cannot add unknown item " + itemName + " to cart";
+                    LOG.error(message);
+                } else {
+                    
+                    String status = shoppingCart.addItemToCart(shoppingItem);
+                    if (!"".equals(status)){
+                        message="";
+                        errorMessage="Error adding " + itemName + " to cart: " + status;
+                    }
+                    else message = "Added " + itemName + " to cart";
+                }   break;
+            case "removeItemFromCart":
+                message = "Removed " + itemName + " from cart";
+                shoppingCart.removeItemFromCart(itemUuid);
+                break;
+            case "purchaseItems":
+                if (sessionUser.getUserRole()==UserRole.ANONYMOUS){
+                    model.addAttribute("errorMessage", "You must be signed in to view purchase items.");
+                    return "home";
+                }
+                List<ShoppingItem> shoppingCartItems = shoppingCart.getShoppingCartItems();
+                for (ShoppingItem cartItem : shoppingCartItems){
+                    ShoppingItem catalogItem = shoppingItemCatalogRepository.findByName(cartItem.getName());
+                    Integer newStock = catalogItem.getStock() - cartItem.getQuantity();
+                    if (newStock < 0){
+                        errorMessage="Cannot purchase item " + cartItem.getName() + ": Not enough stock.";
+                        List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
+                        
+                        Double shoppingcartTotal = shoppingCart.getTotal();
+                        
+                        // populate model with values
+                        model.addAttribute("availableItems", availableItems);
+                        model.addAttribute("shoppingCartItems", shoppingCartItems);
+                        model.addAttribute("shoppingcartTotal", shoppingcartTotal);
+                        model.addAttribute("message", message);
+                        model.addAttribute("errorMessage", errorMessage);
+                        
+                        return "home";
+                    }
+                }   shoppingCartItems.forEach((cartItem) -> {
+                    ShoppingItem catalogItem = shoppingItemCatalogRepository.findByName(cartItem.getName());
+                    catalogItem.setStock(catalogItem.getStock() - cartItem.getQuantity());
+                    shoppingItemCatalogRepository.save(catalogItem);
+                }); 
+                
+                Invoice invoice = new Invoice();
+                invoice.setInvoiceNumber(UUID.randomUUID().toString());
+                invoice.setDateOfPurchase(new Date());
+                invoice.setAmountDue(shoppingCart.getTotal());
+
+                List<InvoiceItem> itemList = new ArrayList<>();
+                shoppingCartItems.forEach((cartItem) -> {
+                    InvoiceItem invoiceItem = new InvoiceItem(cartItem.getName(), cartItem.getPrice());
+                    invoiceItem.setQuantity(cartItem.getQuantity());
+                    invoiceItem.setUuid(UUID.randomUUID().toString());
+                    invoiceItemRepository.save(invoiceItem);   
+                    itemList.add(invoiceItem);
+                });
+
+                invoice.setPurchasedItems(itemList);
+                invoice.setPurchaser(sessionUser);
+                invoice.setStatus(InvoiceStatus.PENDING);
+                invoiceRepository.save(invoice); 
+                LOG.error(invoice.toString());
+                
+                shoppingCartItems.forEach((cartItem) -> {
+                    LOG.error("Attempting to delete from cart");
+                    shoppingCart.removeItemFromCart(cartItem.getUuid());                 
+                });                   
+                break;
+            default:
+                message = "Unknown action=" + action;
+                LOG.error(message);
+                break;
         }
 
         List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
@@ -121,6 +208,7 @@ public class MVCController {
 
         return "home";
     }
+    
 
     @RequestMapping(value = "/about", method = {RequestMethod.GET, RequestMethod.POST})
     public String aboutCart(Model model, HttpSession session) {
@@ -151,12 +239,7 @@ public class MVCController {
         // get sessionUser from session
         User sessionUser = getSessionUser(session);
         model.addAttribute("sessionUser", sessionUser);
-        
-//        List<ShoppingItem> availableItems = new ArrayList();
-//        ShoppingItem item = new ShoppingItem();
-//        item.setName("Apple");
-//        availableItems.add(item);
-        
+               
         List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
         
         model.addAttribute("availableItems", availableItems);
@@ -164,6 +247,27 @@ public class MVCController {
         // used to set tab selected
         model.addAttribute("selectedPage", "admin");
         return "catalog";
+    }
+    
+    @RequestMapping(value = "/userInvoices", method = {RequestMethod.GET, RequestMethod.POST})
+    public String userInvoiceList(Model model, HttpSession session) {
+        // get sessionUser from session
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
+        
+        if (sessionUser.getUserRole()==UserRole.ANONYMOUS){
+            model.addAttribute("errorMessage", "You must be signed in to view orders");
+            return "home";
+        }
+        
+        LOG.error(sessionUser.toString());
+        //userRepository.save(sessionUser);       
+        List<Invoice> invoices = invoiceRepository.findByPurchaser(sessionUser);       
+        model.addAttribute("invoices", invoices);
+        
+        // used to set tab selected
+        model.addAttribute("selectedPage", "userInvoices");
+        return "userInvoices";
     }
 
 

@@ -16,24 +16,23 @@ import javax.persistence.Id;
  * @author kpeacock
  */
 @Entity
-public class ShoppingItem {
+public class InvoiceItem {
     
     private Long id;
     private String uuid=null;
     private String name=null;
     private Integer quantity=0;
     private Double price=0.0;
-    private Integer stock=0;
     
-    public ShoppingItem(){
+    public InvoiceItem(){
         
     }
 
-    public ShoppingItem(String name, Double price) {
+    public InvoiceItem(String name, Double price) {
         this.name = name;
         this.price = price;
     }
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
@@ -76,17 +75,10 @@ public class ShoppingItem {
         this.price = price;
     }
     
-    public Integer getStock() {
-        return stock;
-    }
-
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
 
     @Override
     public String toString() {
-        return "ShoppingItem{" + "uuid=" + uuid + ", name=" + name + ", quantity=" + quantity + ", stock=" + stock + ", price=" + price + '}';
+        return "InvoiceItem{" + "uuid=" + uuid + ", name=" + name + ", quantity=" + quantity + ", price=" + price + '}';
     }
     
             

@@ -55,7 +55,7 @@
                     </tr>
                     <tr>
                         <td>city</td>
-                        <td><input type="text" name="county" value="${modifyUser.address.city}" /></td>
+                        <td><input type="text" name="city" value="${modifyUser.address.city}" /></td>
                     </tr>
                     <tr>
                         <td>county</td>

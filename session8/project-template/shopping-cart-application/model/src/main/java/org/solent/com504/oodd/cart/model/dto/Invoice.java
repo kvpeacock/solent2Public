@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
 
 @Entity
 public class Invoice {
@@ -20,9 +21,11 @@ public class Invoice {
 
     private Double amountDue;
 
-    private List<ShoppingItem> purchasedItems;
+    private List<InvoiceItem> purchasedItems;
 
     private User purchaser;
+    
+    private InvoiceStatus status;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +45,7 @@ public class Invoice {
         this.invoiceNumber = invoiceNumber;
     }
 
+    @Temporal(javax.persistence.TemporalType.DATE)
     public Date getDateOfPurchase() {
         return dateOfPurchase;
     }
@@ -59,11 +63,11 @@ public class Invoice {
     }
 
     @OneToMany
-    public List<ShoppingItem> getPurchasedItems() {
+    public List<InvoiceItem> getPurchasedItems() {
         return purchasedItems;
     }
 
-    public void setPurchasedItems(List<ShoppingItem> purchasedItems) {
+    public void setPurchasedItems(List<InvoiceItem> purchasedItems) {
         this.purchasedItems = purchasedItems;
     }
 
@@ -74,6 +78,19 @@ public class Invoice {
 
     public void setPurchaser(User purchaser) {
         this.purchaser = purchaser;
+    }
+    
+    public InvoiceStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(InvoiceStatus status) {
+        this.status = status;
+    }
+    
+    @Override
+    public String toString() {
+        return "Invoice{" + "invoice number=" + invoiceNumber + ", DOP=" + dateOfPurchase + ", amount due=" + amountDue + ", items= "+ purchasedItems + ", purchaser= " + purchaser + ",status= " + status + '}';
     }
 
 }
