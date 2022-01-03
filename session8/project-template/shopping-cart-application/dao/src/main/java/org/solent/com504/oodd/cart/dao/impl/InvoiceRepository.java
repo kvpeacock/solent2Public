@@ -30,5 +30,8 @@ public interface InvoiceRepository  extends JpaRepository<Invoice,Long>{
     @Query("select i from Invoice i where i.invoiceNumber = :invoiceNumber")
     public Invoice findByInvoiceNumber(@Param("invoiceNumber")String invoiceNumber);
     
+    @Query("select i from Invoice i where i.invoiceNumber like :invoiceNumber%")
+    public List<Invoice> findByPartialInvoiceNumber(@Param("invoiceNumber")String invoiceNumber);
+    
     
 }

@@ -19,7 +19,7 @@
         <div style="color:red;">${errorMessage}</div>
         <div style="color:green;">${message}</div>
 
-        <form action="./viewModifyInvoice" method="POST">
+        <form action="./updateInvoiceStatus" method="POST">
             <table class="table" id="General Details Table">
                 <thead>
                     <tr><h5>General</h5></tr>
@@ -29,7 +29,7 @@
                         <td>Date of Purchase</td>
                         <td>${invoice.dateOfPurchase}</td>
                     </tr>
-                    <c:if test="${sessionUser.userRole !='ANONYMOUS'}">
+                    <c:if test="${sessionUser.userRole =='ADMINISTRATOR'}">
                         <tr>
                             <td>Purchaser</td>
                             <td>${invoice.purchaser.firstName} ${invoice.purchaser.secondName} </td>
@@ -38,20 +38,36 @@
 
                     <tr>
                         <td>Status</td>
-                        <td>${invoice.status} </td>
+                        <c:if test="${sessionUser.userRole =='CUSTOMER'}">
+                            <td>${invoice.status} </td>
+                        </c:if>
+                        <c:if test="${sessionUser.userRole =='ADMINISTRATOR'}">
+                            <td>
+                                <select name="status">
+                                    <c:forEach items="${statusValues}" var="statusValue">
+                                        <option ${invoice.status == statusValue
+                                                  ? 'selected="selected"' 
+                                                  : ''
+                                                  } value="<c:out value="${statusValue}"/>">
+                                            <c:out value="${statusValue}"/>
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </td>
+                        </c:if>
                     </tr>
                 </tbody>
             </table>
-                    
+
             <table class="table" id="Item Table">
                 <thead>
                     <tr><h5>Items</h5></tr>
-                    <tr>
-                        <td>Name</td>
-                        <td>Price</td>
-                        <td>Quantity</td>
-                        <td>Combined Cost(£)</td>
-                    </tr>
+                <tr>
+                    <td>Name</td>
+                    <td>Price</td>
+                    <td>Quantity</td>
+                    <td>Combined Cost(£)</td>
+                </tr>
                 </thead>
 
                 <tbody>
@@ -72,7 +88,10 @@
                     </tr>
                 </tbody>
             </table>
-            
+            <c:if test="${sessionUser.userRole =='ADMINISTRATOR'}">
+                <input type="hidden" name="invoiceNumber" value="${invoice.invoiceNumber}"/>
+                <button class="btn" type="submit" >Update Invoice Status</button>
+            </c:if>
         </form>
     </div>
 </main>

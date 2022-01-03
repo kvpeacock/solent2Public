@@ -48,7 +48,7 @@
                             <li <% if ("home".equals(request.getAttribute("selectedPage"))) {%> class="active"  <% } %> ><a href="./home">Home</a></li> 
                             <li <% if ("about".equals(request.getAttribute("selectedPage"))) {%>  class="active"  <% } %> ><a href="./about">About</a></li> 
                             <li <% if ("contact".equals(request.getAttribute("selectedPage"))) {%>  class="active"  <% }%> ><a href="./contact">Contact</a></li> 
-                            <c:if test="${sessionUser.userRole !='ANONYMOUS'}">
+                            <c:if test="${sessionUser.userRole =='CUSTOMER'}">
                                 <li <% if ("userInvoices".equals(request.getAttribute("selectedPage"))) {%>  class="active"  <% }%> ><a href="./userInvoices">Orders</a></li>
                             </c:if>
                             <c:if test="${sessionUser.userRole =='ADMINISTRATOR'}">
@@ -57,6 +57,7 @@
                                 <ul class="dropdown-menu">
                                     <li><a href="./users">Manage Users</a></li>
                                     <li><a href="./catalog">Manage Catalogue</a></li>
+                                    <li><a href="./invoices">Manage Orders</a></li>
                                 </ul>
                             </li>
                             </c:if>

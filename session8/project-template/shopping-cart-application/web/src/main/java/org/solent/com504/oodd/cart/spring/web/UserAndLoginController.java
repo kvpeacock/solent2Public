@@ -25,6 +25,8 @@ import org.solent.com504.oodd.cart.dao.impl.UserRepository;
 import org.solent.com504.oodd.cart.model.dto.Address;
 import org.solent.com504.oodd.cart.model.dto.User;
 import org.solent.com504.oodd.cart.model.dto.UserRole;
+import org.solent.com504.oodd.cart.model.service.ShoppingCart;
+import org.solent.com504.oodd.cart.model.service.ShoppingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,7 +43,13 @@ public class UserAndLoginController {
 
     @Autowired
     UserRepository userRepository;
-
+    
+    @Autowired
+    ShoppingService shoppingService = null;
+    
+    @Autowired
+    ShoppingCart shoppingCart = null;
+    
     private User getSessionUser(HttpSession session) {
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
@@ -76,11 +84,15 @@ public class UserAndLoginController {
         model.addAttribute("sessionUser", sessionUser);
 
         if (!UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
-            errorMessage = "user " + sessionUser.getUsername() + " already logged in";
-            LOG.warn(errorMessage);
+            errorMessage = "User " + sessionUser.getUsername() + " already logged in";
             model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
             return "home";
-        }
+        
+    }
+        
 
         model.addAttribute("message", message);
         model.addAttribute("errorMessage", errorMessage);
@@ -112,6 +124,9 @@ public class UserAndLoginController {
             errorMessage = "user " + sessionUser.getUsername() + " already logged in";
             LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
             return "home";
         };
 
@@ -160,6 +175,9 @@ public class UserAndLoginController {
             model.addAttribute("errorMessage", errorMessage);
             // used to set tab selected
             model.addAttribute("selectedPage", "home");
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
             return "home";
         } else {
             model.addAttribute("errorMessage", "unknown action requested:" + action);
@@ -167,6 +185,9 @@ public class UserAndLoginController {
             model.addAttribute("errorMessage", errorMessage);
             // used to set tab selected
             model.addAttribute("selectedPage", "home");
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
             return "home";
         }
     }
@@ -254,6 +275,9 @@ public class UserAndLoginController {
         } else {
             LOG.debug("unknown action " + action);
             model.addAttribute("errorMessage", "unknown action " + action);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
             return "home";
         }
     }
@@ -269,7 +293,11 @@ public class UserAndLoginController {
         model.addAttribute("sessionUser", sessionUser);
 
         if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
-            errorMessage = "you must be an administrator to access users information";
+            errorMessage = "Access Denied";
+            model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
             return "home";
         }
 
@@ -300,6 +328,9 @@ public class UserAndLoginController {
         if (UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
             errorMessage = "you must be logged in to access user information";
             model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
             return "home";
         }
 
@@ -310,14 +341,22 @@ public class UserAndLoginController {
                         + "which is not the logged in user =" + sessionUser.getUsername();
                 LOG.warn(errorMessage);
                 model.addAttribute("errorMessage", errorMessage);
-                return ("home");
+                model.addAttribute("availableItems", shoppingService.getAvailableItems());
+                model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+                model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+                return "home";
             }
         }
 
         List<User> userList = userRepository.findByUsername(username);
         if (userList.isEmpty()) {
-            LOG.error("viewModifyUser called for unknown username=" + username);
-            return ("home");
+            errorMessage="viewModifyUser called for unknown username=" + username;
+            LOG.error(errorMessage);
+            model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
         }
 
         User modifyUser = userList.get(0);
@@ -363,6 +402,9 @@ public class UserAndLoginController {
         if (UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
             errorMessage = "you must be logged in to access users information";
             model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
             return "home";
         }
 
@@ -372,7 +414,10 @@ public class UserAndLoginController {
                         + "which is not the logged in user =" + sessionUser.getUsername();
                 model.addAttribute("errorMessage", errorMessage);
                 LOG.warn(errorMessage);
-                return ("home");
+                model.addAttribute("availableItems", shoppingService.getAvailableItems());
+                model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+                model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+                return "home";
             }
         }
 
@@ -381,7 +426,10 @@ public class UserAndLoginController {
             errorMessage = "update user called for unknown username:" + username;
             LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
-            return ("home");
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
         }
 
         User modifyUser = userList.get(0);
@@ -418,7 +466,10 @@ public class UserAndLoginController {
                 errorMessage = "cannot parse userRole" + userRole;
                 LOG.warn(errorMessage);
                 model.addAttribute("errorMessage", errorMessage);
-                return ("home");
+                model.addAttribute("availableItems", shoppingService.getAvailableItems());
+                model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+                model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+                return "home";
             }
         }
 

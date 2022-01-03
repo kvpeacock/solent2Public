@@ -15,18 +15,19 @@ package org.solent.com504.oodd.cart.spring.web;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.solent.com504.oodd.cart.dao.impl.InvoiceRepository;
-import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
-import org.solent.com504.oodd.cart.model.dto.Address;
 import org.solent.com504.oodd.cart.model.dto.Invoice;
+import org.solent.com504.oodd.cart.model.dto.InvoiceStatus;
 import org.solent.com504.oodd.cart.model.dto.User;
 import org.solent.com504.oodd.cart.model.dto.UserRole;
+import org.solent.com504.oodd.cart.model.service.ShoppingCart;
+import org.solent.com504.oodd.cart.model.service.ShoppingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,6 +45,12 @@ public class InvoiceController {
     @Autowired
     InvoiceRepository invoiceRepository;
 
+    @Autowired
+    ShoppingService shoppingService = null;
+
+    @Autowired
+    ShoppingCart shoppingCart = null;
+
     private User getSessionUser(HttpSession session) {
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
@@ -57,7 +64,7 @@ public class InvoiceController {
 
     @RequestMapping(value = {"/viewModifyInvoice"}, method = RequestMethod.GET)
     public String invoice(
-            @RequestParam(value = "invoiceNumber", required = true) String invoiceNumber,
+            @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
             Model model,
             HttpSession session) {
         String message = "";
@@ -65,90 +72,142 @@ public class InvoiceController {
 
         model.addAttribute("selectedPage", "home");
 
-        LOG.error("get viewModifyInvoice called for item=" + invoiceNumber);
+        LOG.info("get viewModifyInvoice called for item=" + invoiceNumber);
 
-        // check secure access to modifyItem profile
+        // check secure access to modifyInvoice profile
         User sessionUser = getSessionUser(session);
         model.addAttribute("sessionUser", sessionUser);
 
-
-        if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole()) && !UserRole.CUSTOMER.equals(sessionUser.getUserRole()) ) {
-            // if not an administrator you can only access your own account info
+        if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole()) && !UserRole.CUSTOMER.equals(sessionUser.getUserRole())) {
             errorMessage = "Please sign in to view orders";
             model.addAttribute("errorMessage", errorMessage);
-            return ("home");
-        }
-        
-        
-        Invoice invoice = invoiceRepository.findByInvoiceNumber(invoiceNumber);
-        if (invoice==null) {
-            LOG.error("viewModifyInvoice called for unknown item=" + invoiceNumber);
-            errorMessage = "Unknown order: "  + invoiceNumber;
-            model.addAttribute("errorMessage", errorMessage);
-            return ("home");
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
         }
 
+        Invoice invoice = invoiceRepository.findByInvoiceNumber(invoiceNumber);
+        if (invoice == null) {
+            LOG.error("viewModifyInvoice called for unknown item=" + invoiceNumber);
+            errorMessage = "Unknown order: " + invoiceNumber;
+            model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
+        }
+        List<String> statusValues = new ArrayList<>();
+        for (InvoiceStatus s : InvoiceStatus.values()) {
+            statusValues.add(s.toString());
+        }
+        model.addAttribute("statusValues", statusValues);
         model.addAttribute("invoice", invoice);
-        model.addAttribute("sessionUser",sessionUser);
+        model.addAttribute("sessionUser", sessionUser);
         model.addAttribute("message", message);
         model.addAttribute("errorMessage", errorMessage);
         return "viewModifyInvoice";
     }
 
-//    @RequestMapping(value = {"/viewModifyItem"}, method = RequestMethod.POST)
-//    public String updateitem(
-//            @RequestParam(value = "uuid", required = true) String uuid,
-//            @RequestParam(value = "name", required = false) String name,
-//            @RequestParam(value = "price", required = false) Double price,
-//            @RequestParam(value = "stock", required = false) Integer stock,
-//            Model model,
-//            HttpSession session) {
-//        String message = "";
-//        String errorMessage = "";
-//
-//        LOG.error("post updateItem called for item " + uuid + "name= " + name);
-//
-//        // security check if party is allowed to access or modify this party
-//        User sessionUser = getSessionUser(session);
-//        model.addAttribute("sessionUser", sessionUser);
-//
-//        if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
-//            // if not an administrator you can only access your own account info
-//            errorMessage = "Acess Denied";
-//            model.addAttribute("errorMessage", errorMessage);
-//            return ("home");
-//        }
-//        
-//        Invoice invoice = invoiceRepository.findByInvoiceNumber(invoiceNumber);
-//        if (invoice==null) {
-//            LOG.error("viewModifyItem called for unknown item=" + name);
-//            return ("home");
-//        }
-//        
-//        if (name != null) {
-//            modifyItem.setName(name);
-//        }
-//        
-//        if (price != null) {
-//            modifyItem.setPrice(price);
-//        }
-//        
-//        if (stock != null) {
-//            modifyItem.setStock(stock);
-//        }
-//             
-//        modifyItem = itemRepository.save(modifyItem);
-//
-//        model.addAttribute("modifyItem", modifyItem);
-//
-//        // add message if there are any 
-//        model.addAttribute("errorMessage", errorMessage);
-//        model.addAttribute("message", "User " + modifyItem.getName() + " updated successfully");
-//
-//        model.addAttribute("selectedPage", "home");
-//
-//        return "viewModifyItem";
-//    }
+    @RequestMapping(value = "/searchInvoices", method = {RequestMethod.GET, RequestMethod.POST})
+    public String invoiceList(
+            @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
+            Model model,
+            HttpSession session
+    ) {
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
+
+        if (sessionUser.getUserRole() != UserRole.ADMINISTRATOR) {
+            model.addAttribute("errorMessage", "Access Denied");
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
+        }
+
+        List<Invoice> invoices = invoiceRepository.findByPartialInvoiceNumber(invoiceNumber);
+        model.addAttribute("invoices", invoices);
+        model.addAttribute("searchedValue", invoiceNumber);
+
+        // used to set tab selected
+        model.addAttribute("selectedPage", "admin");
+        return "adminInvoices";
+    }
+
+    @RequestMapping(value = "/updateInvoiceStatus", method = {RequestMethod.GET, RequestMethod.POST})
+    public String invoiceStatusUpdate(
+            @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
+            @RequestParam(value = "status", required = false) String status,
+            Model model,
+            HttpSession session
+    ) {
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
+
+        if (sessionUser.getUserRole() != UserRole.ADMINISTRATOR) {
+            model.addAttribute("errorMessage", "Access Denied");
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
+        }
+
+        Invoice invoiceToUpdate = invoiceRepository.findByInvoiceNumber(invoiceNumber);
+        LOG.error(status);
+
+        if (invoiceToUpdate == null) {
+            LOG.error("viewModifyInvoice called for unknown item=" + invoiceNumber);
+            String errorMessage = "Unknown order: " + invoiceNumber;
+            model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
+        }
+        if (null == status) {
+            LOG.error("Cannot update invoice " + invoiceNumber + " status to " + status);
+            String errorMessage = "Unknown order: " + invoiceNumber;
+            model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
+        } else {
+            switch (status) {
+                case "PENDING":
+                    invoiceToUpdate.setStatus(InvoiceStatus.PENDING);
+                    break;
+                case "FULFILLED":
+                    invoiceToUpdate.setStatus(InvoiceStatus.FULFILLED);
+                    break;
+                case "REJECTED":
+                    invoiceToUpdate.setStatus(InvoiceStatus.REJECTED);
+                    break;
+                default:
+                    LOG.error("Cannot update invoice " + invoiceNumber + " status to " + status);
+                    String errorMessage = "Unknown order: " + invoiceNumber;
+                    model.addAttribute("errorMessage", errorMessage);
+                    model.addAttribute("availableItems", shoppingService.getAvailableItems());
+                    model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+                    model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+                    return "home";
+            }
+        }
+
+        invoiceRepository.save(invoiceToUpdate);
+        List<String> statusValues = new ArrayList<>();
+        for (InvoiceStatus s : InvoiceStatus.values()) {
+            statusValues.add(s.toString());
+        }
+        model.addAttribute("statusValues", statusValues);
+        model.addAttribute("invoice", invoiceToUpdate);
+        model.addAttribute("sessionUser", sessionUser);
+        String message = "Invoice updated";
+        model.addAttribute("message", message);
+        model.addAttribute("selectedPage", "admin");
+        return "viewModifyInvoice";
+    }
 
     /*
      * Default exception handler, catches all exceptions, redirects to friendly

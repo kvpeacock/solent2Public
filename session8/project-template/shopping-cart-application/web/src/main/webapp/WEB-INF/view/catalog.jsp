@@ -9,7 +9,13 @@
 <main role="main" class="container">
     <H1>Catalog</H1>
     
+    <form action="./createNewItem">
+        <button class="btn" type="submit" >Add Item</button>
+    </form> 
     <H1>Available Items</H1>
+    <!-- print error message if there is one -->
+    <div style="color:red;">${errorMessage}</div>
+    <div style="color:green;">${message}</div>
     <table class="table">
         <thead>
             <tr>
@@ -36,6 +42,7 @@
                 </tr>
             </c:forEach>
         </tbody>
+
     </table>
 </main>
 

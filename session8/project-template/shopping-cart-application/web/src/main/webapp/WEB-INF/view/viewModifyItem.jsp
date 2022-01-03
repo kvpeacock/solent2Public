@@ -19,7 +19,7 @@
         <div style="color:red;">${errorMessage}</div>
         <div style="color:green;">${message}</div>
 
-        <form action="./viewModifyInvoice" method="POST">
+        <form action="./viewModifyItem" method="POST">
             <table class="table">
                 <thead>
                 </thead>
@@ -31,28 +31,36 @@
                     </tr>
                     <tr>
                         <td>Name</td>
-                        <td><input type="text" required name="name" value="${modifyItem.name}" /></td>
+                        <td><input type="text" required name="newName" value="${modifyItem.name}" /></td>
                     </tr>
                     <tr>
                         <td>Price</td>
-                        <td><input type="number" min="0" step="0.01" name="price" value="${modifyItem.price}" /></td>
+                        <td><input type="number" required min="0" step="0.01" name="price" value="${modifyItem.price}" /></td>
                     </tr>
                     <tr>
-                        <td>Quantity</td>
-                        <td><input type="number" min="0" name="stock" value="${modifyItem.stock}" /></td>
+                        <td>Stock</td>
+                        <td><input type="number" required min="0" name="stock" value="${modifyItem.stock}" /></td>
                     </tr>
                 </tbody>
             </table>
             <input type="hidden" name="uuid" value="${modifyItem.uuid}"/>
+            <input type="hidden" name="name" value="${modifyItem.name}"/>
+            <input type="hidden" name="action" value="update"/>
             <button class="btn" type="submit" >Update Item</button>
         </form>
+            
+            <BR>
+            <form action="./viewModifyItem" method="POST">
+                <input type="hidden" name="action" value="delete"/>
+                <input type="hidden" name="name" value="${modifyItem.name}"/>
+                <input type="hidden" name="uuid" value="${modifyItem.uuid}"/>
+                <button class="btn" type="submit" >Delete Item</button>
+            </form>
 
-        <c:if test="${sessionUser.userRole =='ADMINISTRATOR'}">
             <BR>
             <form action="./catalog">
                 <button class="btn" type="submit" >Return To Catalog</button>
             </form> 
-        </c:if> 
 
         </div>
 

@@ -15,17 +15,19 @@ package org.solent.com504.oodd.cart.spring.web;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.solent.com504.oodd.cart.dao.impl.ShoppingItemCatalogRepository;
 import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
-import org.solent.com504.oodd.cart.model.dto.Address;
 import org.solent.com504.oodd.cart.model.dto.User;
 import org.solent.com504.oodd.cart.model.dto.UserRole;
+import org.solent.com504.oodd.cart.model.service.ShoppingCart;
+import org.solent.com504.oodd.cart.model.service.ShoppingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,6 +45,15 @@ public class CatalogController {
     @Autowired
     ShoppingItemCatalogRepository itemRepository;
 
+    @Autowired
+    ShoppingService shoppingService = null;
+
+    @Autowired
+    ShoppingCart shoppingCart = null;
+
+    @Autowired
+    private ShoppingItemCatalogRepository shoppingItemCatalogRepository;
+
     private User getSessionUser(HttpSession session) {
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
@@ -56,37 +67,53 @@ public class CatalogController {
 
     @RequestMapping(value = {"/viewModifyItem"}, method = RequestMethod.GET)
     public String modifyItem(
-            @RequestParam(value = "name", required = true) String name,
+            @RequestParam(value = "name", required = false) String name,
             Model model,
             HttpSession session) {
         String message = "";
         String errorMessage = "";
 
-        model.addAttribute("selectedPage", "home");
-
-        LOG.error("get viewModifyItem called for item=" + name);
-
         // check secure access to modifyItem profile
         User sessionUser = getSessionUser(session);
         model.addAttribute("sessionUser", sessionUser);
-
 
         if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
             // if not an administrator you can only access your own account info
             errorMessage = "Acess Denied";
             model.addAttribute("errorMessage", errorMessage);
-            return ("home");
-            }
-        
-        
+            model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
+        }
+
+        if (name == null || name.isEmpty()) {
+            errorMessage = "viewModifyItem called for item with undefined name";
+            LOG.error(errorMessage);
+            model.addAttribute("errorMessage", errorMessage);
+            List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
+            model.addAttribute("availableItems", availableItems);
+            model.addAttribute("selectedPage", "admin");
+            return "catalog";
+        }
+
+        model.addAttribute("selectedPage", "admin");
+
+        LOG.info("get viewModifyItem called for item named" + name);
+
         ShoppingItem modifyItem = itemRepository.findByName(name);
-        if (modifyItem==null) {
-            LOG.error("viewModifyItem called for unknown item=" + name);
-            return ("home");
+        if (modifyItem == null) {
+            errorMessage = "viewModifyItem called for unknown item=" + name;
+            LOG.error(errorMessage);
+            model.addAttribute("errorMessage", errorMessage);
+            List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
+            model.addAttribute("availableItems", availableItems);
+            model.addAttribute("selectedPage", "admin");
+            return "catalog";
         }
 
         model.addAttribute("modifyItem", modifyItem);
-
         model.addAttribute("message", message);
         model.addAttribute("errorMessage", errorMessage);
         return "viewModifyItem";
@@ -94,57 +121,180 @@ public class CatalogController {
 
     @RequestMapping(value = {"/viewModifyItem"}, method = RequestMethod.POST)
     public String updateitem(
-            @RequestParam(value = "uuid", required = true) String uuid,
+            @RequestParam(value = "uuid", required = false) String uuid,
+            @RequestParam(value = "newName", required = false) String newName,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "price", required = false) Double price,
             @RequestParam(value = "stock", required = false) Integer stock,
+            @RequestParam(value = "action", required = false) String action,
             Model model,
             HttpSession session) {
         String message = "";
         String errorMessage = "";
 
-        LOG.error("post updateItem called for item " + uuid + "name= " + name);
+        if (name == null || name.isEmpty() || uuid == null || uuid.isEmpty()) {
+            errorMessage = "viewModifyItem called for item with unknown name or UUID";
+            LOG.error(errorMessage);
+            model.addAttribute("errorMessage", errorMessage);
+            List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
+            model.addAttribute("availableItems", availableItems);
+            model.addAttribute("selectedPage", "admin");
+            return "catalog";
+        }
 
         // security check if party is allowed to access or modify this party
         User sessionUser = getSessionUser(session);
         model.addAttribute("sessionUser", sessionUser);
 
         if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
-            // if not an administrator you can only access your own account info
             errorMessage = "Acess Denied";
             model.addAttribute("errorMessage", errorMessage);
-            return ("home");
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
         }
-        
+
         ShoppingItem modifyItem = itemRepository.findByName(name);
-        if (modifyItem==null) {
-            LOG.error("viewModifyItem called for unknown item=" + name);
-            return ("home");
+        if (modifyItem == null) {
+            errorMessage = "viewModifyItem called for unknown item=" + name;
+            LOG.error(errorMessage);
+            model.addAttribute("errorMessage", errorMessage);
+            List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
+            model.addAttribute("availableItems", availableItems);
+            model.addAttribute("selectedPage", "admin");
+            return "catalog";
         }
-        
-        if (name != null) {
-            modifyItem.setName(name);
+
+        LOG.info("post updateItem called for item " + uuid + "name= " + name);
+
+        ShoppingItem cartItemToUpdate = new ShoppingItem();
+        boolean cartItemFound = false;
+        for (ShoppingItem i : shoppingCart.getShoppingCartItems()) {
+            if (i.getName().equals(modifyItem.getName())) {
+                cartItemToUpdate = i;
+                cartItemFound = true;
+                break;
+            }
         }
-        
-        if (price != null) {
-            modifyItem.setPrice(price);
+
+        switch (action) {
+            case "update":
+                if (newName != null) {
+                    for (ShoppingItem i : itemRepository.findAll()) {
+                        if (!i.getUuid().equals(modifyItem.getUuid()) && i.getName().equals(newName)) {
+                            errorMessage = "Cannot update item - item named " + newName + " already exists";
+                            LOG.error(errorMessage);
+                            model.addAttribute("errorMessage", errorMessage);
+                            model.addAttribute("modifyItem", modifyItem);
+                            return "viewModifyItem";
+                        }
+                    }
+
+                    modifyItem.setName(newName);
+                    if (cartItemFound) {
+                        cartItemToUpdate.setName(newName);
+                    }
+                }
+
+                if (price != null) {
+                    modifyItem.setPrice(price);
+                    if (cartItemFound) {
+                        cartItemToUpdate.setPrice(price);
+                    }
+                }
+
+                if (stock != null) {
+                    modifyItem.setStock(stock);
+                }
+
+                modifyItem = itemRepository.save(modifyItem);
+                model.addAttribute("modifyItem", modifyItem);
+                model.addAttribute("message", "Item " + modifyItem.getName() + " updated successfully");
+                model.addAttribute("selectedPage", "viewModifyItem");
+                return "viewModifyItem";
+
+            case "delete":
+                itemRepository.deleteById(modifyItem.getId());
+                if (cartItemFound) {
+                    shoppingCart.removeItemFromCart(cartItemToUpdate.getUuid());
+                }
+                model.addAttribute("availableItems", shoppingService.getAvailableItems());
+                model.addAttribute("selectedPage", "admin");
+                return "catalog";
+            default:
+                model.addAttribute("errorMessage", errorMessage);
+                List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
+                model.addAttribute("availableItems", availableItems);
+                model.addAttribute("selectedPage", "admin");
+                return "catalog";
         }
-        
-        if (stock != null) {
-            modifyItem.setStock(stock);
+    }
+
+    @RequestMapping(value = "/createNewItem")
+    public String createItemPage(Model model, HttpSession session) {
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
+        model.addAttribute("selectedPage", "createNewItem");
+
+        if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
+            // if not an administrator you can only access your own account info
+            String errorMessage = "Acess Denied";
+            model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
         }
-             
-        modifyItem = itemRepository.save(modifyItem);
+        return "createNewItem";
+    }
 
-        model.addAttribute("modifyItem", modifyItem);
+    @RequestMapping(value = {"/createNewItem"}, method = RequestMethod.POST)
+    public String contactCart(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "price", required = false) Double price,
+            @RequestParam(value = "stock", required = false) Integer stock,
+            Model model,
+            HttpSession session) {
 
-        // add message if there are any 
-        model.addAttribute("errorMessage", errorMessage);
-        model.addAttribute("message", "User " + modifyItem.getName() + " updated successfully");
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
+        model.addAttribute("selectedPage", "createNewItem");
 
-        model.addAttribute("selectedPage", "home");
-
-        return "viewModifyItem";
+        if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
+            // if not an administrator you can only access your own account info
+            String errorMessage = "Acess Denied";
+            model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
+        }
+        if (name == null || name.isEmpty() || price == null || stock == null) {
+            String errorMessage = "Cannot create item with undefined name, price or stock";
+            LOG.error(errorMessage);
+            model.addAttribute("errorMessage", errorMessage);
+            List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
+            model.addAttribute("availableItems", availableItems);
+            model.addAttribute("selectedPage", "admin");
+            return "catalog";
+        }
+        for (ShoppingItem i : itemRepository.findAll()) {
+            if (i.getName().equals(name)) {
+                String errorMessage = "Cannot create new item - item named " + name + " already exists";
+                LOG.error(errorMessage);
+                model.addAttribute("errorMessage", errorMessage);
+                return "createNewItem";
+            }
+        }
+        ShoppingItem itemToCreate = new ShoppingItem(name, price);
+        itemToCreate.setUuid(UUID.randomUUID().toString());
+        itemToCreate.setStock(stock);
+        shoppingItemCatalogRepository.save(itemToCreate);
+        List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
+        model.addAttribute("availableItems", availableItems);
+        model.addAttribute("selectedPage", "admin");
+        return "catalog";
     }
 
     /*
