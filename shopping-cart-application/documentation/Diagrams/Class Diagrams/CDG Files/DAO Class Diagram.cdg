@@ -8,7 +8,6 @@
         <Field name="name" type="String" visibility="private"/>
         <Field name="quantity" type="Integer" visibility="private"/>
         <Field name="price" type="Double" visibility="private"/>
-        <Field name="description" type="String" visibility="private"/>
       </Fields>
       <Constructors/>
       <Methods/>
@@ -23,7 +22,7 @@
         <Field name="invoiceNumber" type="String" visibility="private"/>
         <Field name="dateOfPurchase" type="Date" visibility="private"/>
         <Field name="amountDue" type="Double" visibility="private"/>
-        <Field name="purchasedItems" type="List&lt;ShoppingItem&gt;" visibility="private"/>
+        <Field name="purchasedItems" type="List&lt;InvoiceItems&gt;" visibility="private"/>
         <Field name="purchaser" type="User" visibility="private"/>
       </Fields>
       <Constructors/>
@@ -38,10 +37,11 @@
         <Field name="secondName" type="String" visibility="private"/>
         <Field name="address" type="Address" visibility="private"/>
         <Field name="password" type="String" visibility="private"/>
+        <Field name="cardNumber" type="Integer" visibility="private"/>
       </Fields>
       <Constructors/>
       <Methods>
-        <Method name="isValidPassword" returnType="void" visibility="public">
+        <Method name="isValidPassword" returnType="String" visibility="public">
           <Argument type="String" name="checkPassword"/>
         </Method>
       </Methods>
@@ -87,7 +87,7 @@
     <Interface name="CatalogRepository" package="org.solent.com504.oodd.cart.model.dao" visibility="public" xPosition="100.0" yPosition="420.0">
       <Methods/>
     </Interface>
-    <Interface name="InvoiceRepository" package="org.solent.com504.oodd.cart.model.dao" visibility="public" xPosition="434.0" yPosition="420.0">
+    <Interface name="InvoiceRepository" package="org.solent.com504.oodd.cart.model.dao" visibility="public" xPosition="526.0" yPosition="420.0">
       <Methods/>
     </Interface>
     <Interface name="UserService" package="org.solent.com504.oodd.cart.model.service" visibility="public" xPosition="948.0" yPosition="214.0">
@@ -100,6 +100,19 @@
         <Literal name="ADMINISTRATOR"/>
       </Literals>
     </Enum>
+    <Interface name="InvoiceItemRepository" package="" visibility="public" xPosition="309.0" yPosition="420.0">
+      <Methods/>
+    </Interface>
+    <Class name="InvoiceItem" package="" visibility="public" xPosition="276.0" yPosition="807.0">
+      <Fields>
+        <Field name="uuid" type="String" visibility="private"/>
+        <Field name="name" type="String" visibility="private"/>
+        <Field name="stock" type="Integer" visibility="private"/>
+        <Field name="price" type="Double" visibility="private"/>
+      </Fields>
+      <Constructors/>
+      <Methods/>
+    </Class>
   </ClassDiagramComponents>
   <ClassDiagramRelations>
     <UseRelation name="useShoppingCart" source="JSPs_doNotGenerate" target="org.solent.com504.oodd.cart.model.service.ShoppingCart" sourceCardinality="1..1" targetCardinality="1..1"/>

@@ -21,8 +21,6 @@ import org.apache.logging.log4j.Logger;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.solent.com504.oodd.cart.dao.impl.InvoiceRepository;
-import org.solent.com504.oodd.cart.dao.impl.ShoppingItemCatalogRepository;
 import org.solent.com504.oodd.cart.dao.impl.UserRepository;
 import org.solent.com504.oodd.cart.model.dto.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +31,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 /**
  *
  * @author cgallen
+ * @author kpeacock
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 // ApplicationContext will be loaded from the OrderServiceConfig class
@@ -45,15 +44,25 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private ShoppingItemCatalogRepository shoppingItemCatalogRepository;
-
-    @Autowired
-    private InvoiceRepository invoiceRepository;
-
     @Test
-    public void testUser() {
-        LOG.debug("****************** starting test");
+    public void givenUser_whenSaveUser_thenSaveUser() {
+        LOG.debug("****************** starting save test");
+
+        userRepository.deleteAll();
+
+        User user1 = new User();
+        user1.setUsername("cg101");
+        user1.setFirstName("craig");
+        user1.setSecondName("gallen");
+        userRepository.save(user1);
+
+        assertEquals(1, userRepository.count());
+        
+        LOG.debug("****************** save test complete");
+    }
+    @Test
+    public void givenUser_whenUpdateUser_thenUpdateUser() {
+        LOG.debug("****************** starting update test");
 
         userRepository.deleteAll();
 
@@ -62,13 +71,15 @@ public class UserRepositoryTest {
         user1.setFirstName("craig");
         user1.setSecondName("gallen");
         user1 = userRepository.save(user1);
-
-        assertEquals(1, userRepository.count());
+        
+        user1.setFirstName("test");
 
         Optional<User> optional = userRepository.findById(user1.getId());
         User foundUser = optional.get();
 
         LOG.debug("found user: " + foundUser);
+        
+        assertEquals("test", user1.getFirstName());
         
         List<User> foundUsers1 = userRepository.findByUsername("cg101");
         LOG.debug("found user21: " + foundUsers1);
@@ -77,7 +88,58 @@ public class UserRepositoryTest {
         LOG.debug("found user3: " + foundUsers);
         
 
-        LOG.debug("****************** test complete");
+        LOG.debug("****************** update test complete");
+    }
+    @Test
+    public void givenUser_whenDeleteUser_thenDeleteUser() {
+        LOG.debug("****************** starting test");
+
+        userRepository.deleteAll();
+
+        User user1 = new User();
+        user1.setUsername("cg101");
+        user1.setFirstName("craig");
+        user1.setSecondName("gallen");
+        userRepository.save(user1);
+        assertEquals(1, userRepository.count());
+        userRepository.delete(user1);
+        assertEquals(0, userRepository.count());
+
+        LOG.debug("****************** delete test complete");
+    }
+    @Test
+    public void givenUsername_whenFindByUsername_thenReturnUserWithUsername() {
+        LOG.debug("****************** starting findByUsername test");
+
+        userRepository.deleteAll();
+
+        User user1 = new User();
+        user1.setUsername("cg101");
+        user1.setFirstName("craig");
+        user1.setSecondName("gallen");
+        userRepository.save(user1);
+               
+        List<User> foundUsers = userRepository.findByUsername("cg101");
+        assertEquals(1, foundUsers.size());
+              
+        LOG.debug("****************** findByUsername test complete");
+    }
+    @Test
+    public void givenNames_whenFindByNames_thenReturnUserWithNames() {
+        LOG.debug("****************** starting findByNames test");
+
+        userRepository.deleteAll();
+
+        User user1 = new User();
+        user1.setUsername("cg101");
+        user1.setFirstName("craig");
+        user1.setSecondName("gallen");
+        userRepository.save(user1);
+               
+        List<User> foundUsers = userRepository.findByNames("craig","gallen");
+        assertEquals(1, foundUsers.size());
+              
+        LOG.debug("****************** findByNames test complete");
     }
 
 }

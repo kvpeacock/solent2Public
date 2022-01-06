@@ -17,6 +17,11 @@ import org.solent.com504.oodd.cart.model.dto.InvoiceItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+/** 
+* A JpaRepository used to store type {@link InvoiceItem}. 
+* @see org.springframework.data.jpa.repository.JpaRepository;
+* @author cgallen
+*/
 @Repository
 public interface InvoiceItemRepository  extends JpaRepository<InvoiceItem,Long>{
 }

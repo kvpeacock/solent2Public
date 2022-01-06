@@ -26,9 +26,13 @@
                 </thead>
                 <tbody>
                     <tr>
+                        <td>Invoice Number</td>
+                        <td>${invoice.invoiceUUID}</td>
+                    </tr> 
+                    <tr>
                         <td>Date of Purchase</td>
                         <td>${invoice.dateOfPurchase}</td>
-                    </tr>
+                    </tr>                   
                     <c:if test="${sessionUser.userRole =='ADMINISTRATOR'}">
                         <tr>
                             <td>Purchaser</td>
@@ -89,7 +93,7 @@
                 </tbody>
             </table>
             <c:if test="${sessionUser.userRole =='ADMINISTRATOR'}">
-                <input type="hidden" name="invoiceNumber" value="${invoice.invoiceNumber}"/>
+                <input type="hidden" name="invoiceNumber" value="${invoice.invoiceUUID}"/>
                 <button class="btn" type="submit" >Update Invoice Status</button>
             </c:if>
         </form>

@@ -35,6 +35,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * Adds catalogue CRUD functionality to the web site. 
+ * Enforces a rule where only admins can view webpages with CRUD functionality - non-admins will be redirected to the home page
+ * @author kpeacock
+ */
 @Controller
 @RequestMapping("/")
 public class CatalogController {
@@ -64,6 +69,13 @@ public class CatalogController {
         return sessionUser;
     }
 
+    /**
+     * Redirects admins to the viewModifyItem page to view a specific item's details
+     * @param name the name of the item to view
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the webpage detailing the specified item's details
+     */
     @RequestMapping(value = {"/viewModifyItem"}, method = RequestMethod.GET)
     public String modifyItem(
             @RequestParam(value = "name", required = false) String name,
@@ -89,7 +101,7 @@ public class CatalogController {
 
         if (name == null || name.isEmpty()) {
             errorMessage = "viewModifyItem called for item with undefined name";
-            LOG.error(errorMessage);
+            LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
             List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
             model.addAttribute("availableItems", availableItems);
@@ -104,7 +116,7 @@ public class CatalogController {
         ShoppingItem modifyItem = itemRepository.findByName(name);
         if (modifyItem == null) {
             errorMessage = "viewModifyItem called for unknown item=" + name;
-            LOG.error(errorMessage);
+            LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
             List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
             model.addAttribute("availableItems", availableItems);
@@ -117,7 +129,18 @@ public class CatalogController {
         model.addAttribute("errorMessage", errorMessage);
         return "viewModifyItem";
     }
-
+/**
+ * Allows admins to update and delete {@link ShoppingItem} from the {@link ShoppingItemCatalogRepository}
+ * @param uuid the uuid of the {@link ShoppingItem} to update
+ * @param newName the name to update the {@link ShoppingItem} to
+ * @param name the current name of the {@link ShoppingItem} to update
+ * @param price the price to update the {@link ShoppingItem} to
+ * @param stock the stock to update the {@link ShoppingItem} to
+ * @param action the requested action to perform on the {@link ShoppingItem} - either "update" or "delete"
+ * @param model used to access the model holder
+ * @param session used to access the current session
+ * @return the webpage to return to after the operation is complete
+ */
     @RequestMapping(value = {"/viewModifyItem"}, method = RequestMethod.POST)
     public String updateitem(
             @RequestParam(value = "uuid", required = false) String uuid,
@@ -133,7 +156,7 @@ public class CatalogController {
 
         if (name == null || name.isEmpty() || uuid == null || uuid.isEmpty()) {
             errorMessage = "viewModifyItem called for item with unknown name or UUID";
-            LOG.error(errorMessage);
+            LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
             List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
             model.addAttribute("availableItems", availableItems);
@@ -157,7 +180,7 @@ public class CatalogController {
         ShoppingItem modifyItem = itemRepository.findByName(name);
         if (modifyItem == null) {
             errorMessage = "viewModifyItem called for unknown item=" + name;
-            LOG.error(errorMessage);
+            LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
             List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
             model.addAttribute("availableItems", availableItems);
@@ -183,7 +206,7 @@ public class CatalogController {
                     for (ShoppingItem i : itemRepository.findAll()) {
                         if (!i.getUuid().equals(modifyItem.getUuid()) && i.getName().equals(newName)) {
                             errorMessage = "Cannot update item - item named " + newName + " already exists";
-                            LOG.error(errorMessage);
+                            LOG.warn(errorMessage);
                             model.addAttribute("errorMessage", errorMessage);
                             model.addAttribute("modifyItem", modifyItem);
                             return "viewModifyItem";
@@ -210,6 +233,7 @@ public class CatalogController {
                 modifyItem = itemRepository.save(modifyItem);
                 model.addAttribute("modifyItem", modifyItem);
                 model.addAttribute("message", "Item " + modifyItem.getName() + " updated successfully");
+                LOG.info("Item " + modifyItem.getName() + " updated successfully");
                 model.addAttribute("selectedPage", "viewModifyItem");
                 return "viewModifyItem";
 
@@ -219,6 +243,7 @@ public class CatalogController {
                     shoppingCart.removeItemFromCart(cartItemToUpdate.getUuid());
                 }
                 model.addAttribute("availableItems", shoppingService.getAvailableItems());
+                LOG.info("Item " + name + " deleted");
                 model.addAttribute("selectedPage", "admin");
                 return "catalog";
             default:
@@ -229,7 +254,12 @@ public class CatalogController {
                 return "catalog";
         }
     }
-
+    /**
+     * Used to redirect the admin to the createNewItem webpage
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the link to the createNewItem webpage
+     */
     @RequestMapping(value = "/createNewItem")
     public String createItemPage(Model model, HttpSession session) {
         User sessionUser = getSessionUser(session);
@@ -247,9 +277,17 @@ public class CatalogController {
         }
         return "createNewItem";
     }
-
+    /**
+     * Adds a new {@link ShoppingItem} to the {@link ShoppingItemRepository}, based on the supplied parameters
+     * @param name the name of the {@link ShoppingItem} to create
+     * @param price the price of the {@link ShoppingItem} to create
+     * @param stock the stock of the {@link ShoppingItem} to create
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return a link to the catalog webpage
+     */
     @RequestMapping(value = {"/createNewItem"}, method = RequestMethod.POST)
-    public String contactCart(
+    public String createNewItem(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "price", required = false) Double price,
             @RequestParam(value = "stock", required = false) Integer stock,
@@ -271,7 +309,7 @@ public class CatalogController {
         }
         if (name == null || name.isEmpty() || price == null || stock == null) {
             String errorMessage = "Cannot create item with undefined name, price or stock";
-            LOG.error(errorMessage);
+            LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
             List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
             model.addAttribute("availableItems", availableItems);
@@ -281,7 +319,7 @@ public class CatalogController {
         for (ShoppingItem i : itemRepository.findAll()) {
             if (i.getName().equals(name)) {
                 String errorMessage = "Cannot create new item - item named " + name + " already exists";
-                LOG.error(errorMessage);
+                LOG.warn(errorMessage);
                 model.addAttribute("errorMessage", errorMessage);
                 return "createNewItem";
             }
@@ -290,15 +328,52 @@ public class CatalogController {
         itemToCreate.setUuid(UUID.randomUUID().toString());
         itemToCreate.setStock(stock);
         shoppingItemCatalogRepository.save(itemToCreate);
+        LOG.info("Item " + name + " created");
         List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
         model.addAttribute("availableItems", availableItems);
         model.addAttribute("selectedPage", "admin");
         return "catalog";
     }
+    /**
+     * Provides the catalog webpage with partial name search funtionality
+     * @param name the name to query against
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the catalog webpage, with only the items that match the defined query
+     */
+    @RequestMapping(value = "/searchCatalog", method = {RequestMethod.GET, RequestMethod.POST})
+    public String catalogSearch(
+            @RequestParam(value = "name", required = false) String name,
+            Model model,
+            HttpSession session
+    ) {
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
 
-    /*
+        if (sessionUser.getUserRole() != UserRole.ADMINISTRATOR) {
+            model.addAttribute("errorMessage", "Access Denied");
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
+        }
+
+        List<ShoppingItem> shoppingItems = shoppingItemCatalogRepository.findByPartialName(name);
+        model.addAttribute("availableItems", shoppingItems);
+        model.addAttribute("searchedValue", name);
+
+        // used to set tab selected
+        model.addAttribute("selectedPage", "admin");
+        return "catalog";
+    }
+    
+    /**
      * Default exception handler, catches all exceptions, redirects to friendly
      * error page. Does not catch request mapping errors
+     * @param e the exception
+     * @param model used to access the model holder
+     * @param request the request made
+     * @return the error details
      */
     @ExceptionHandler(Exception.class)
     public String myExceptionHandler(final Exception e, Model model,

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ClassDiagram name="service">
+  <ClassDiagramComponents>
+    <Class name="ServiceObjectFactory" package="org.solent.com504.oodd.cart.service" visibility="public" xPosition="20.0" yPosition="20.0">
+      <Fields>
+        <Field name="shoppingService" type="ShoppingService" visibility="package" isStatic="true"/>
+      </Fields>
+      <Constructors>
+        <Constructor visibility="private"/>
+      </Constructors>
+      <Methods>
+        <Method name="getShoppingService" returnType="ShoppingService" visibility="public" isStatic="true"/>
+        <Method name="getNewShoppingCart" returnType="ShoppingCart" visibility="public" isStatic="true"/>
+      </Methods>
+    </Class>
+    <Class name="ShoppingCartImpl" package="org.solent.com504.oodd.cart.service" visibility="public" xPosition="20.0" yPosition="243.0">
+      <Fields>
+        <Field name="LOG" type="Logger" visibility="package" isStatic="true" isFinal="true"/>
+        <Field name="itemMap" type="HashMap&lt;String, ShoppingItem&gt;" visibility="private"/>
+      </Fields>
+      <Constructors/>
+      <Methods>
+        <Method name="getShoppingCartItems" returnType="List&lt;ShoppingItem&gt;" visibility="public"/>
+        <Method name="addItemToCart" returnType="String" visibility="public">
+          <Argument type="ShoppingItem" name="shoppingItem"/>
+        </Method>
+        <Method name="removeItemFromCart" returnType="void" visibility="public">
+          <Argument type="String" name="itemUuid"/>
+        </Method>
+        <Method name="getTotal" returnType="double" visibility="public"/>
+      </Methods>
+    </Class>
+    <Class name="ShoppingServiceImpl" package="org.solent.com504.oodd.cart.service" visibility="public" xPosition="384.0" yPosition="20.0">
+      <Fields>
+        <Field name="LOG" type="Logger" visibility="package" isStatic="true" isFinal="true"/>
+        <Field name="shoppingItemCatalogRepository" type="ShoppingItemCatalogRepository" visibility="private"/>
+      </Fields>
+      <Constructors>
+        <Constructor visibility="public"/>
+      </Constructors>
+      <Methods>
+        <Method name="getAvailableItems" returnType="List&lt;ShoppingItem&gt;" visibility="public"/>
+        <Method name="purchaseItems" returnType="boolean" visibility="public">
+          <Argument type="ShoppingCart" name="shoppingCart"/>
+        </Method>
+        <Method name="getNewItemByName" returnType="ShoppingItem" visibility="public">
+          <Argument type="String" name="name"/>
+        </Method>
+      </Methods>
+    </Class>
+    <Class name="PopulateDatabaseOnStart" package="org.solent.com504.oodd.cart.spring.service" visibility="public" xPosition="384.0" yPosition="309.0">
+      <Fields>
+        <Field name="LOG" type="Logger" visibility="package" isStatic="true" isFinal="true"/>
+        <Field name="DEFAULT_ADMIN_USERNAME" type="String" visibility="private" isStatic="true" isFinal="true"/>
+        <Field name="DEFAULT_ADMIN_PASSWORD" type="String" visibility="private" isStatic="true" isFinal="true"/>
+        <Field name="DEFAULT_USER_PASSWORD" type="String" visibility="private" isStatic="true" isFinal="true"/>
+        <Field name="DEFAULT_USER_USERNAME" type="String" visibility="private" isStatic="true" isFinal="true"/>
+        <Field name="userRepository" type="UserRepository" visibility="private"/>
+        <Field name="shoppingItemCatalogRepository" type="ShoppingItemCatalogRepository" visibility="private"/>
+      </Fields>
+      <Constructors/>
+      <Methods>
+        <Method name="initDatabase" returnType="void" visibility="public"/>
+      </Methods>
+    </Class>
+    <Class name="ServiceConfiguration" package="org.solent.com504.oodd.cart.spring.service" visibility="public" xPosition="832.0" yPosition="20.0">
+      <Fields/>
+      <Constructors/>
+      <Methods/>
+    </Class>
+  </ClassDiagramComponents>
+  <ClassDiagramRelations/>
+</ClassDiagram>

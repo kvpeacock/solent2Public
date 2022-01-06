@@ -16,9 +16,9 @@ import org.solent.com504.oodd.cart.model.service.ShoppingCart;
 import org.solent.com504.oodd.cart.model.service.ShoppingService;
 
 /**
- *
- * @author cgallen
- * @author kpeacock
+ * Creates service objects used for core functionality.
+ * @author cgallen, kpeacock
+ * 
  */
 public class ServiceObjectFactory {
     
@@ -28,11 +28,15 @@ public class ServiceObjectFactory {
     private ServiceObjectFactory(){
         
     }
-    
+    /** 
+    * @return the shopping service.
+    */
     public static ShoppingService getShoppingService(){
         return shoppingService;
     }
-    
+    /** 
+    * @return the implementation of the shopping cart interface.
+    */
     public static ShoppingCart getNewShoppingCart(){
         return new ShoppingCartImpl();
     }

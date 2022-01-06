@@ -18,6 +18,10 @@
     <div style="color:green;">${message}</div>
 
     <H1>Available Items</H1>
+    <form action="./searchStore" method="GET">
+        <input name="name" input="text" placeholder="Search by name" value="${searchedValue}">
+        <button class="btn" type="submit" >Search</button>
+    </form> 
     <table class="table">
 
         <tr>

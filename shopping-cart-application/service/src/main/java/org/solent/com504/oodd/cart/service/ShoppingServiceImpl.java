@@ -15,50 +15,33 @@ package org.solent.com504.oodd.cart.service;
 
 import java.util.List;
 import java.util.UUID;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.solent.com504.oodd.cart.dao.impl.ShoppingItemCatalogRepository;
 import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
-import org.solent.com504.oodd.cart.model.service.ShoppingCart;
 import org.solent.com504.oodd.cart.model.service.ShoppingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- *
- * @author cgallen
- * @author kpeacock
+ * Implementation of the shopping service
+ * @author cgallen, kpeacock
  */
-
-
 
 @Component
 public class ShoppingServiceImpl implements ShoppingService {
-    
-    final static Logger LOG = LogManager.getLogger("Transaction_Logger");
-    
-    
+       
     @Autowired
     private ShoppingItemCatalogRepository shoppingItemCatalogRepository;
 
+    /** 
+    * creates shopping service implementation
+    */
     public ShoppingServiceImpl() {
     }
 
     @Override
     public List<ShoppingItem> getAvailableItems() {
-        
         List<ShoppingItem> itemList = shoppingItemCatalogRepository.findAll();
         return itemList;
-    }
-
-    @Override
-    public boolean purchaseItems(ShoppingCart shoppingCart) {
-        System.out.println("purchased items");
-        for (ShoppingItem shoppingItem : shoppingCart.getShoppingCartItems()) {
-            System.out.println(shoppingItem);
-        }
-
-        return true;
     }
 
     @Override

@@ -22,16 +22,38 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+/** 
+* A JpaRepository used to store type {@link Invoice}. 
+* @see org.springframework.data.jpa.repository.JpaRepository;
+* @author cgallen, kpeacock
+*/
 @Repository
 public interface InvoiceRepository  extends JpaRepository<Invoice,Long>{
-    @Query("select i from Invoice i where i.purchaser = :purchaser")
+    
+    /** 
+    * A Spring Query that returns a list of type {@link Invoice} where invoice.purchaser matches a specified {@link User}. 
+    * @param purchaser The {@link User} that should be queried against.
+    * @return A List of {@link Invoice} objects, where the purchaser matches the <code>purchaser</code> parameter.
+    * @see org.springframework.data.jpa.repository.Query;
+    */
+    @Query("SELECT i FROM Invoice i WHERE i.purchaser = :purchaser")
     public List<Invoice> findByPurchaser(@Param("purchaser")User purchaser);
     
-    @Query("select i from Invoice i where i.invoiceNumber = :invoiceNumber")
-    public Invoice findByInvoiceNumber(@Param("invoiceNumber")String invoiceNumber);
+    /** 
+    * A Spring Query that returns a list of type {@link Invoice} where invoice.UUID matches a specified UUID. 
+    * @param invoiceUUID The <code>UUID</code> that should be queried against.
+    * @return A List of {@link Invoice} objects, where the UUID matches the <code>UUID</code> parameter.
+    * @see org.springframework.data.jpa.repository.Query;
+    */
+    @Query("SELECT i FROM Invoice i WHERE i.invoiceUUID = :invoiceUUID")
+    public Invoice findByInvoiceUUID(@Param("invoiceUUID")String invoiceUUID);
     
-    @Query("select i from Invoice i where i.invoiceNumber like :invoiceNumber%")
-    public List<Invoice> findByPartialInvoiceNumber(@Param("invoiceNumber")String invoiceNumber);
-    
-    
+    /** 
+    * A Spring Query that returns a list of type {@link Invoice} where invoice.UUID starts with a specified string. 
+    * @param invoiceUUID The partial <code>UUID</code> that should be queried against.
+    * @return A List of {@link Invoice} objects, where the UUID starts with the <code>UUID</code> parameter.
+    * @see org.springframework.data.jpa.repository.Query;
+    */
+    @Query("SELECT i FROM Invoice i WHERE i.invoiceUUID LIKE :invoiceUUID%")
+    public List<Invoice> findByPartialInvoiceUUID(@Param("invoiceUUID")String invoiceUUID);
 }

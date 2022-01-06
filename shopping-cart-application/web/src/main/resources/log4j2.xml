@@ -36,7 +36,7 @@
         </RollingFile>
         
         <!-- a roling file appender for transaction logs -->
-        <RollingFile name="transactionLog" fileName="${APP_LOG_ROOT}/POS-transactionLog.log"
+        <RollingFile name="transactionLog" fileName="${APP_LOG_ROOT}/transactionLog.log"
              filePattern="${APP_LOG_ROOT}/transactions-%d{yyyy-MM-dd}-%i.log" >
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies>

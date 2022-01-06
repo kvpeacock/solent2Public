@@ -16,11 +16,22 @@
 package org.solent.com504.oodd.cart.model.dto;
 
 /**
- *
- * @author pc
+ * Enumerator used to represent invoice statuses.
+ * @author kpeacock
  */
 public enum InvoiceStatus {
-    FULFILLED, REJECTED, PENDING
+    /**
+    * An invoice that has been fulfilled, with the items purchased confirmed to be with the purchaser.
+    */
+    FULFILLED,
+    /**
+    * An invoice that has been rejected, by payment failure or other circumstances.
+    */
+    REJECTED,
+    /**
+    * An invoice that has been paid for, but the items have not been confirmed to be with the purchaser.
+    */
+    PENDING
 }
 
 

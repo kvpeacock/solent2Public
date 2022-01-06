@@ -28,9 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- *
- * @author cgallen
- * @author kpeacock
+ * Class used to populate databases on startup.
+ * @author cgallen, kpeacock
  */
 @Component
 public class PopulateDatabaseOnStart {
@@ -48,7 +47,9 @@ public class PopulateDatabaseOnStart {
     
     @Autowired
     private ShoppingItemCatalogRepository shoppingItemCatalogRepository;
-
+    /** 
+    * Populates databases with initial values.
+    */
     @PostConstruct
     public void initDatabase() {
         
@@ -82,16 +83,12 @@ public class PopulateDatabaseOnStart {
         } else {
             LOG.info("defaultuser already exists. Not creating new :" + defaultUser);
         }
-        
-
-//        //ShoppingItem alligator = new ShoppingItem("pet alligator", 65.00);
-//        //shoppingItemCatalogRepository.save(alligator);
-        
-        List<ShoppingItem> itemList = Arrays.asList(new ShoppingItem("house", 20000.00),
-        new ShoppingItem("hen", 5.00),
-        new ShoppingItem("car", 5000.00),
-        new ShoppingItem("pet alligator", 65.00),
-        new ShoppingItem("repo", 60.00));
+                
+        List<ShoppingItem> itemList = Arrays.asList(new ShoppingItem("Spade", 20.00),
+        new ShoppingItem("Shovel", 15.00),
+        new ShoppingItem("Pillar Drill", 5000.00),
+        new ShoppingItem("Toolbox", 65.00),
+        new ShoppingItem("Workbench", 60.00));
 
         for(ShoppingItem item:itemList){
             item.setUuid(UUID.randomUUID().toString());
@@ -99,14 +96,6 @@ public class PopulateDatabaseOnStart {
             shoppingItemCatalogRepository.save(item);
 
         }
-            
-         
-    
-        
-        
-        
-        
-
         LOG.debug("database initialised");
     }
 }

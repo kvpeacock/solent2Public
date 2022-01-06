@@ -13,7 +13,10 @@
  */
 package org.solent.com504.oodd.cart.dao.test;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
@@ -22,10 +25,10 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.solent.com504.oodd.cart.dao.impl.InvoiceRepository;
-import org.solent.com504.oodd.cart.dao.impl.ShoppingItemCatalogRepository;
+import org.solent.com504.oodd.cart.dao.impl.InvoiceItemRepository;
 import org.solent.com504.oodd.cart.dao.impl.UserRepository;
 import org.solent.com504.oodd.cart.model.dto.Invoice;
-import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
+import org.solent.com504.oodd.cart.model.dto.InvoiceItem;
 import org.solent.com504.oodd.cart.model.dto.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,6 +38,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 /**
  *
  * @author cgallen
+ * @author kpeacock
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 // ApplicationContext will be loaded from the OrderServiceConfig class
@@ -48,14 +52,15 @@ public class InvoiceRepositoryTest {
     private UserRepository userRepository;
 
     @Autowired
-    private ShoppingItemCatalogRepository shoppingItemCatalogRepository;
+    private InvoiceItemRepository invoiceItemRepository;
 
     @Autowired
     private InvoiceRepository invoiceRepository;
 
     @Test
-    public void testInvoice() {
-        LOG.debug("****************** starting test");
+    public void givenInvoice_whenSaveInvoice_thenSaveInvoice() {
+
+        LOG.debug("****************** starting save test");
 
         invoiceRepository.deleteAll();
 
@@ -73,25 +78,163 @@ public class InvoiceRepositoryTest {
         invoice1 = invoiceRepository.save(invoice1);
         assertEquals(1, invoiceRepository.count());
 
-        // do catalog item
-        ShoppingItem shoppingItem1 = new ShoppingItem();
-        shoppingItem1.setName("item 1");
-        shoppingItem1.setPrice(100.1);
-        shoppingItem1.setQuantity(1);
-        shoppingItem1.setUuid(UUID.randomUUID().toString());
-//        shoppingItem1 = shoppingItemCatalogRepository.save(shoppingItem1);
-//
-//        List<ShoppingItem> purchasedItems = new ArrayList<ShoppingItem>();
-//
-//        invoice1.setPurchasedItems(purchasedItems);
-//        invoice1 = invoiceRepository.save(invoice1);
-//
-//        Optional<Invoice> optional = invoiceRepository.findById(invoice1.getId());
-//        Invoice foundInvoice = optional.get();
-//
-//        LOG.debug("found Invoice : " + foundInvoice);
-//
-//        LOG.debug("****************** test complete");
+        Optional<Invoice> optional = invoiceRepository.findById(invoice1.getId());
+        Invoice foundInvoice = optional.get();
+        LOG.debug("found Invoice : " + foundInvoice);
+  
+        LOG.debug("****************** save test complete");
     }
+    
+    @Test
+    public void givenInvoice_whenDeleteInvoice_thenDeleteInvoice() {
+        LOG.debug("****************** starting delete test");
 
+        invoiceRepository.deleteAll();
+
+        User user1 = new User();
+        user1.setFirstName("craig");
+        user1.setSecondName("gallen");
+        user1 = userRepository.save(user1);
+        assertEquals(1, userRepository.count());
+
+        Invoice invoice1 = new Invoice();
+        invoice1.setAmountDue(100.0);
+        invoice1.setDateOfPurchase(new Date());
+        invoice1.setPurchaser(user1);
+
+        invoice1 = invoiceRepository.save(invoice1);
+        assertEquals(1, invoiceRepository.count());
+
+        invoiceRepository.delete(invoice1);
+        assertEquals(0, invoiceRepository.count());
+        
+        LOG.debug("****************** delete test complete");
+    }
+    @Test
+    public void givenInvoiceItem_whenUpdateInvoice_thenUpdateInvoice() {
+        LOG.debug("****************** starting update test");
+
+        invoiceRepository.deleteAll();
+
+        User user1 = new User();
+        user1.setFirstName("craig");
+        user1.setSecondName("gallen");
+        user1 = userRepository.save(user1);
+        assertEquals(1, userRepository.count());
+
+        Invoice invoice1 = new Invoice();
+        invoice1.setAmountDue(100.0);
+        invoice1.setDateOfPurchase(new Date());
+        invoice1.setPurchaser(user1);
+
+        invoice1 = invoiceRepository.save(invoice1);
+        assertEquals(1, invoiceRepository.count());
+
+        // create invoice item
+        InvoiceItem invoiceItem1 = new InvoiceItem();
+        invoiceItem1.setName("item 1");
+        invoiceItem1.setPrice(100.1);
+        invoiceItem1.setQuantity(1);
+        invoiceItem1.setUuid(UUID.randomUUID().toString());
+        invoiceItem1 = invoiceItemRepository.save(invoiceItem1);
+
+        List<InvoiceItem> purchasedItems = new ArrayList<>();
+        purchasedItems.add(invoiceItem1);
+
+        invoice1.setPurchasedItems(purchasedItems);
+        //invoiceRepository.save(invoice1);
+
+        Optional<Invoice> optional = invoiceRepository.findById(invoice1.getId());
+        Invoice foundInvoice = optional.get();
+        
+        assertEquals(1, foundInvoice.getPurchasedItems().size());
+        LOG.debug("****************** update test complete");
+    }
+    @Test
+    public void givenPurchaser_whenfindByPurchaser_thenReturnInvoicesFromPurchaser() {
+        LOG.debug("****************** starting findByPurchaser test");
+
+        invoiceRepository.deleteAll();
+
+        User user1 = new User();
+        user1.setFirstName("craig");
+        user1.setSecondName("gallen");
+        user1 = userRepository.save(user1);
+        assertEquals(1, userRepository.count());
+
+        Invoice invoice1 = new Invoice();
+        invoice1.setAmountDue(100.0);
+        invoice1.setDateOfPurchase(new Date());
+        invoice1.setPurchaser(user1);
+        invoiceRepository.save(invoice1);
+        
+        Invoice invoice2 = new Invoice();
+        invoice2.setAmountDue(100.0);
+        invoice2.setDateOfPurchase(new Date());
+        invoice2.setPurchaser(user1);
+        invoiceRepository.save(invoice2);
+          
+        assertEquals(2, invoiceRepository.count());
+
+        List<Invoice> userInvoices = invoiceRepository.findByPurchaser(user1);
+        assertEquals(2, userInvoices.size());
+        LOG.debug("****************** findByPurchaser test complete");
+    }
+    
+    @Test
+    public void givenPurchaser_whenfindByInvoiceNumber_thenReturnInvoiceWithInvoiceNumber() {
+        LOG.debug("****************** starting findByInvoiceNumber test");
+
+        invoiceRepository.deleteAll();
+
+        User user1 = new User();
+        user1.setFirstName("craig");
+        user1.setSecondName("gallen");
+        user1 = userRepository.save(user1);
+        assertEquals(1, userRepository.count());
+
+        Invoice invoice1 = new Invoice();
+        invoice1.setAmountDue(100.0);
+        invoice1.setDateOfPurchase(new Date());
+        String invoiceUUID = UUID.randomUUID().toString();
+        invoice1.setInvoiceUUID(invoiceUUID);
+        invoice1.setPurchaser(user1);
+        invoiceRepository.save(invoice1);
+          
+        assertEquals(1, invoiceRepository.count());
+
+        Invoice foundInvoice = invoiceRepository.findByInvoiceUUID(invoiceUUID);
+        assertEquals(invoiceUUID, foundInvoice.getInvoiceUUID());
+                
+        LOG.debug("****************** findByInvoiceNumber test complete");
+    }
+    @Test
+    public void givenPurchaser_whenfindByPartialInvoiceNumber_thenReturnInvoiceWithPartialInvoiceNumber() {
+        LOG.debug("****************** starting findByPartialInvoiceNumber test");
+
+        invoiceRepository.deleteAll();
+
+        User user1 = new User();
+        user1.setFirstName("craig");
+        user1.setSecondName("gallen");
+        user1 = userRepository.save(user1);
+        assertEquals(1, userRepository.count());
+
+        Invoice invoice1 = new Invoice();
+        invoice1.setAmountDue(100.0);
+        invoice1.setDateOfPurchase(new Date());
+        String invoiceUUID = UUID.randomUUID().toString();
+        invoice1.setInvoiceUUID(invoiceUUID);
+        invoice1.setPurchaser(user1);
+        invoiceRepository.save(invoice1);
+        
+        assertEquals(1, invoiceRepository.count());
+
+        List<Invoice> foundInvoices = invoiceRepository.findByPartialInvoiceUUID(invoiceUUID.substring(0,5));
+        assertEquals(1, foundInvoices.size());
+
+        assertEquals(invoiceUUID, foundInvoices.get(0).getInvoiceUUID());
+                
+        LOG.debug("****************** findByPartialInvoiceNumber test complete");
+    }
 }

@@ -1,9 +1,3 @@
-# Ehopping Application program template
-
-This is based upon the Shopping Cart Using Spring with Bootstrap in session 6
-
-
-
 ### To run using stand alone spring boot maven plugin
 
 at base of project do a build

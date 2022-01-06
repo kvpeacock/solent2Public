@@ -80,24 +80,6 @@
                 </tbody>
             </table>
 
-
-
-
-
-
-
-            Card Details
-            <table class="table">
-                <thead>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Name On Card</td>
-                        <td><input type="text" name="cardName" value="name" /></td>
-                    </tr>
-                </tbody>
-            </table>
-
             <c:if test="${sessionUser.userRole =='ADMINISTRATOR'}">
                 <p>Manage User Status and role </p>
                 <table class="table">

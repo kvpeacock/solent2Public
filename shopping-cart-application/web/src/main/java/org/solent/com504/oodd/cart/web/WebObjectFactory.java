@@ -13,15 +13,13 @@
  */
 package org.solent.com504.oodd.cart.web;
 
-//import org.solent.com504.oodd.cart.service.ShoppingServiceImpl;
-//import org.solent.com504.oodd.cart.service.ShoppingCartImpl;
 import org.solent.com504.oodd.cart.model.service.ShoppingCart;
 import org.solent.com504.oodd.cart.model.service.ShoppingService;
 import org.solent.com504.oodd.cart.service.ServiceObjectFactory;
 
 /**
  *
- * @author cgallen
+ * @author cgallen, kpeacock
  */
 public class WebObjectFactory {
 
@@ -31,11 +29,17 @@ public class WebObjectFactory {
     private WebObjectFactory(){
         
     }
-    
+    /**
+     * 
+     * @return the shoppingService 
+     */
     public static ShoppingService getShoppingService(){
         return shoppingService;
     }
-    
+    /**
+     * 
+     * @return a new shopping cart object
+     */
     public static ShoppingCart getNewShoppingCart(){
         return ServiceObjectFactory.getNewShoppingCart();
     }

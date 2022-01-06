@@ -103,7 +103,6 @@ public class ShoppingCartTest {
 
         ShoppingItem shoppingItem = new ShoppingItem();
         shoppingItem.setStock(1);
-      //  shoppingItem.setUuid("A");
         shoppingItem.setPrice(5.0);
         shoppingCart.addItemToCart(shoppingItem);
         shoppingItem.setQuantity(3);

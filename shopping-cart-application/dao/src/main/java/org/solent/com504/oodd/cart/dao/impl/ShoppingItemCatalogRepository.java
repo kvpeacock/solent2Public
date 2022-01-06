@@ -13,14 +13,35 @@
  */
 package org.solent.com504.oodd.cart.dao.impl;
 
+import java.util.List;
 import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+/** 
+* A JpaRepository used to store type {@link Shoppingtem}. 
+* @see org.springframework.data.jpa.repository.JpaRepository;
+* @author cgallen, kpeacock
+*/
 @Repository
 public interface ShoppingItemCatalogRepository  extends JpaRepository<ShoppingItem,Long>{
-    @Query("select s from ShoppingItem s where s.name = :name")
+    /** 
+    * A Spring Query that returns a list of type {@link ShoppingItem} where shoppingItem.name matches the specified parameter. 
+    * @param name The item name that should be queried against.
+    * @return A List of {@link ShoppingItem} objects, where the item name matches the <code>name</code> parameter.
+    * @see org.springframework.data.jpa.repository.Query;
+    */
+    @Query("SELECT s FROM ShoppingItem s WHERE s.name = :name")
     public ShoppingItem findByName(@Param("name")String name);
+    
+    /** 
+    * A Spring Query that returns a list of type {@link ShoppingItem} where shoppingItem.name starts with the specified parameter. 
+    * @param name The partial item name that should be queried against. Not case sensitive.
+    * @return A List of {@link ShoppingItem} objects, where the item name starts with the <code>name</code> parameter.
+    * @see org.springframework.data.jpa.repository.Query;
+    */
+    @Query("SELECT s FROM ShoppingItem s WHERE LOWER(s.name) LIKE LOWER(concat(?1, '%'))")
+    public List<ShoppingItem> findByPartialName(@Param("name")String name);
 }

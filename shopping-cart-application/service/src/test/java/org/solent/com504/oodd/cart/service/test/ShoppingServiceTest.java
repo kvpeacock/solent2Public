@@ -30,7 +30,6 @@ public class ShoppingServiceTest {
     @Before
     public void before(){
         shoppingService = ServiceObjectFactory.getShoppingService();
-        
     }
     
     @Test

@@ -16,6 +16,12 @@
     <!-- print error message if there is one -->
     <div style="color:red;">${errorMessage}</div>
     <div style="color:green;">${message}</div>
+    
+    <form action="./searchCatalog" method="GET">
+        <input name="name" input="text" placeholder="Search by name" value="${searchedValue}">
+        <button class="btn" type="submit" >Search</button>
+    </form> 
+    
     <table class="table">
         <thead>
             <tr>

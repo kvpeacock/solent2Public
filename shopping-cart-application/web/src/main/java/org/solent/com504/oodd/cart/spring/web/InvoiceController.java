@@ -36,6 +36,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * Adds invoice CRUD functionality to the web site. 
+ * Enforces a rule where only admins can view webpages with CRUD functionality - non-admins will be redirected to the home page
+ * @author kpeacock
+ */
 @Controller
 @RequestMapping("/")
 public class InvoiceController {
@@ -61,7 +66,13 @@ public class InvoiceController {
         }
         return sessionUser;
     }
-
+    /**
+     * Redirects admins to the viewModifyInvoice page to view details of a specific invoice
+     * @param invoiceNumber the UUID of the invoice to view
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the webpage detailing the specified invoice details
+     */
     @RequestMapping(value = {"/viewModifyInvoice"}, method = RequestMethod.GET)
     public String invoice(
             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
@@ -87,9 +98,9 @@ public class InvoiceController {
             return "home";
         }
 
-        Invoice invoice = invoiceRepository.findByInvoiceNumber(invoiceNumber);
+        Invoice invoice = invoiceRepository.findByInvoiceUUID(invoiceNumber);
         if (invoice == null) {
-            LOG.error("viewModifyInvoice called for unknown item=" + invoiceNumber);
+            LOG.warn("viewModifyInvoice called for unknown item=" + invoiceNumber);
             errorMessage = "Unknown order: " + invoiceNumber;
             model.addAttribute("errorMessage", errorMessage);
             model.addAttribute("availableItems", shoppingService.getAvailableItems());
@@ -108,9 +119,15 @@ public class InvoiceController {
         model.addAttribute("errorMessage", errorMessage);
         return "viewModifyInvoice";
     }
-
+    /**
+     * Provides the invoice webpage with partial invoice number search funtionality
+     * @param invoiceNumber the invoice UUID to query against
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the invoice webpage, with only the invoices that match the defined query
+     */
     @RequestMapping(value = "/searchInvoices", method = {RequestMethod.GET, RequestMethod.POST})
-    public String invoiceList(
+    public String searchInvoices(
             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
             Model model,
             HttpSession session
@@ -126,7 +143,7 @@ public class InvoiceController {
             return "home";
         }
 
-        List<Invoice> invoices = invoiceRepository.findByPartialInvoiceNumber(invoiceNumber);
+        List<Invoice> invoices = invoiceRepository.findByPartialInvoiceUUID(invoiceNumber);
         model.addAttribute("invoices", invoices);
         model.addAttribute("searchedValue", invoiceNumber);
 
@@ -135,6 +152,14 @@ public class InvoiceController {
         return "adminInvoices";
     }
 
+    /**
+     * Used to update the status of an invoice
+     * @param invoiceNumber the UUID of the invoice to update
+     * @param status the status to update to
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the viewModifyInvoice webpage, updated with the new specified status
+     */
     @RequestMapping(value = "/updateInvoiceStatus", method = {RequestMethod.GET, RequestMethod.POST})
     public String invoiceStatusUpdate(
             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
@@ -153,11 +178,10 @@ public class InvoiceController {
             return "home";
         }
 
-        Invoice invoiceToUpdate = invoiceRepository.findByInvoiceNumber(invoiceNumber);
-        LOG.error(status);
+        Invoice invoiceToUpdate = invoiceRepository.findByInvoiceUUID(invoiceNumber);
 
         if (invoiceToUpdate == null) {
-            LOG.error("viewModifyInvoice called for unknown item=" + invoiceNumber);
+            LOG.warn("viewModifyInvoice called for unknown item=" + invoiceNumber);
             String errorMessage = "Unknown order: " + invoiceNumber;
             model.addAttribute("errorMessage", errorMessage);
             model.addAttribute("availableItems", shoppingService.getAvailableItems());
@@ -165,8 +189,8 @@ public class InvoiceController {
             model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
             return "home";
         }
-        if (null == status) {
-            LOG.error("Cannot update invoice " + invoiceNumber + " status to " + status);
+        else if (null == status) {
+            LOG.warn("Cannot update invoice " + invoiceNumber + " status to " + status);
             String errorMessage = "Unknown order: " + invoiceNumber;
             model.addAttribute("errorMessage", errorMessage);
             model.addAttribute("availableItems", shoppingService.getAvailableItems());
@@ -185,7 +209,7 @@ public class InvoiceController {
                     invoiceToUpdate.setStatus(InvoiceStatus.REJECTED);
                     break;
                 default:
-                    LOG.error("Cannot update invoice " + invoiceNumber + " status to " + status);
+                    LOG.warn("Cannot update invoice " + invoiceNumber + " status to " + status);
                     String errorMessage = "Unknown order: " + invoiceNumber;
                     model.addAttribute("errorMessage", errorMessage);
                     model.addAttribute("availableItems", shoppingService.getAvailableItems());
@@ -196,6 +220,7 @@ public class InvoiceController {
         }
 
         invoiceRepository.save(invoiceToUpdate);
+        LOG.info("Invoice " + invoiceToUpdate.getInvoiceUUID() + " status updated to " + status);
         List<String> statusValues = new ArrayList<>();
         for (InvoiceStatus s : InvoiceStatus.values()) {
             statusValues.add(s.toString());
@@ -208,10 +233,40 @@ public class InvoiceController {
         model.addAttribute("selectedPage", "admin");
         return "viewModifyInvoice";
     }
+    /**
+     * Generates a list of all invoices
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the admin invoice webpage
+     */
+    @RequestMapping(value = "/invoices", method = {RequestMethod.GET, RequestMethod.POST})
+    public String invoiceList(Model model, HttpSession session) {
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
 
-    /*
+        if (sessionUser.getUserRole() != UserRole.ADMINISTRATOR) {
+            model.addAttribute("errorMessage", "Access Denied");
+            model.addAttribute("availableItems", shoppingService.getAvailableItems());
+            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+            return "home";
+        }
+
+        List<Invoice> invoices = invoiceRepository.findAll();
+        model.addAttribute("invoices", invoices);
+
+        // used to set tab selected
+        model.addAttribute("selectedPage", "admin");
+        return "adminInvoices";
+    }
+
+    /**
      * Default exception handler, catches all exceptions, redirects to friendly
      * error page. Does not catch request mapping errors
+     * @param e the exception
+     * @param model used to access the model holder
+     * @param request the request made
+     * @return the error details
      */
     @ExceptionHandler(Exception.class)
     public String myExceptionHandler(final Exception e, Model model,

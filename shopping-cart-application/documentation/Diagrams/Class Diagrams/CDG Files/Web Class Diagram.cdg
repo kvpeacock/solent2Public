@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ClassDiagram name="web">
+  <ClassDiagramComponents>
+    <Class name="CatalogController" package="org.solent.com504.oodd.cart.spring.web" visibility="public" xPosition="20.0" yPosition="20.0">
+      <Fields>
+        <Field name="LOG" type="Logger" visibility="package" isStatic="true" isFinal="true"/>
+        <Field name="itemRepository" type="ShoppingItemCatalogRepository" visibility="package"/>
+        <Field name="shoppingService" type="ShoppingService" visibility="package"/>
+        <Field name="shoppingCart" type="ShoppingCart" visibility="package"/>
+        <Field name="shoppingItemCatalogRepository" type="ShoppingItemCatalogRepository" visibility="private"/>
+      </Fields>
+      <Constructors/>
+      <Methods>
+        <Method name="getSessionUser" returnType="User" visibility="private">
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="modifyItem" returnType="String" visibility="public">
+          <Argument type="String" name="name"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="updateitem" returnType="String" visibility="public">
+          <Argument type="String" name="uuid"/>
+          <Argument type="String" name="newName"/>
+          <Argument type="String" name="name"/>
+          <Argument type="Double" name="price"/>
+          <Argument type="Integer" name="stock"/>
+          <Argument type="String" name="action"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="createItemPage" returnType="String" visibility="public">
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="contactCart" returnType="String" visibility="public">
+          <Argument type="String" name="name"/>
+          <Argument type="Double" name="price"/>
+          <Argument type="Integer" name="stock"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="myExceptionHandler" returnType="String" visibility="public">
+          <Argument type="Exception" name="e"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpServletRequest" name="request"/>
+        </Method>
+      </Methods>
+    </Class>
+    <Class name="InvoiceController" package="org.solent.com504.oodd.cart.spring.web" visibility="public" xPosition="1136.0" yPosition="254.0">
+      <Fields>
+        <Field name="LOG" type="Logger" visibility="package" isStatic="true" isFinal="true"/>
+        <Field name="invoiceRepository" type="InvoiceRepository" visibility="package"/>
+        <Field name="shoppingService" type="ShoppingService" visibility="package"/>
+        <Field name="shoppingCart" type="ShoppingCart" visibility="package"/>
+      </Fields>
+      <Constructors/>
+      <Methods>
+        <Method name="getSessionUser" returnType="User" visibility="private">
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="invoice" returnType="String" visibility="public">
+          <Argument type="String" name="invoiceNumber"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="invoiceList" returnType="String" visibility="public">
+          <Argument type="String" name="invoiceNumber"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="invoiceStatusUpdate" returnType="String" visibility="public">
+          <Argument type="String" name="invoiceNumber"/>
+          <Argument type="String" name="status"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="myExceptionHandler" returnType="String" visibility="public">
+          <Argument type="Exception" name="e"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpServletRequest" name="request"/>
+        </Method>
+      </Methods>
+    </Class>
+    <Class name="MVCController" package="org.solent.com504.oodd.cart.spring.web" visibility="public" xPosition="20.0" yPosition="618.0">
+      <Fields>
+        <Field name="LOG" type="Logger" visibility="package" isStatic="true" isFinal="true"/>
+        <Field name="shoppingService" type="ShoppingService" visibility="package"/>
+        <Field name="shoppingCart" type="ShoppingCart" visibility="package"/>
+        <Field name="shoppingItemCatalogRepository" type="ShoppingItemCatalogRepository" visibility="private"/>
+        <Field name="invoiceRepository" type="InvoiceRepository" visibility="private"/>
+        <Field name="invoiceItemRepository" type="InvoiceItemRepository" visibility="private"/>
+      </Fields>
+      <Constructors/>
+      <Methods>
+        <Method name="getSessionUser" returnType="User" visibility="private">
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="index" returnType="String" visibility="public">
+          <Argument type="Model" name="model"/>
+        </Method>
+        <Method name="viewCart" returnType="String" visibility="public">
+          <Argument type="String" name="action"/>
+          <Argument type="String" name="itemName"/>
+          <Argument type="String" name="itemUuid"/>
+          <Argument type="String" name="cart"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="aboutCart" returnType="String" visibility="public">
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="contactCart" returnType="String" visibility="public">
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="catalogList" returnType="String" visibility="public">
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="userInvoiceList" returnType="String" visibility="public">
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="invoiceList" returnType="String" visibility="public">
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="myExceptionHandler" returnType="String" visibility="public">
+          <Argument type="Exception" name="e"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpServletRequest" name="request"/>
+        </Method>
+      </Methods>
+    </Class>
+    <Class name="SpringBootJspApplication" package="org.solent.com504.oodd.cart.spring.web" visibility="public" xPosition="854.0" yPosition="20.0">
+      <Fields/>
+      <Constructors/>
+      <Methods>
+        <Method name="configure" returnType="SpringApplicationBuilder" visibility="protected">
+          <Argument type="SpringApplicationBuilder" name="builder"/>
+        </Method>
+        <Method name="main" returnType="void" visibility="public" isStatic="true">
+          <Argument type="String[]" name="args"/>
+        </Method>
+      </Methods>
+    </Class>
+    <Class name="SpringBootJspConfiguration" package="org.solent.com504.oodd.cart.spring.web" visibility="public" xPosition="1220.0" yPosition="20.0">
+      <Fields/>
+      <Constructors/>
+      <Methods>
+        <Method name="getNewShoppingCart" returnType="ShoppingCart" visibility="public"/>
+      </Methods>
+    </Class>
+    <Class name="UserAndLoginController" package="org.solent.com504.oodd.cart.spring.web" visibility="public" xPosition="20.0" yPosition="1043.0">
+      <Fields>
+        <Field name="LOG" type="Logger" visibility="package" isStatic="true" isFinal="true"/>
+        <Field name="userRepository" type="UserRepository" visibility="package"/>
+        <Field name="shoppingService" type="ShoppingService" visibility="package"/>
+        <Field name="shoppingCart" type="ShoppingCart" visibility="package"/>
+      </Fields>
+      <Constructors/>
+      <Methods>
+        <Method name="getSessionUser" returnType="User" visibility="private">
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="logout" returnType="String" visibility="public">
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="login" returnType="String" visibility="public">
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="login" returnType="String" visibility="public">
+          <Argument type="String" name="action"/>
+          <Argument type="String" name="username"/>
+          <Argument type="String" name="password"/>
+          <Argument type="String" name="password2"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="registerGET" returnType="String" visibility="public">
+          <Argument type="String" name="action"/>
+          <Argument type="String" name="username"/>
+          <Argument type="String" name="password"/>
+          <Argument type="String" name="password2"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="register" returnType="String" visibility="public">
+          <Argument type="String" name="action"/>
+          <Argument type="String" name="username"/>
+          <Argument type="String" name="password"/>
+          <Argument type="String" name="password2"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="users" returnType="String" visibility="public">
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="modifyuser" returnType="String" visibility="public">
+          <Argument type="String" name="username"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="updateuser" returnType="String" visibility="public">
+          <Argument type="String" name="username"/>
+          <Argument type="String" name="firstName"/>
+          <Argument type="String" name="secondName"/>
+          <Argument type="String" name="userRole"/>
+          <Argument type="String" name="userEnabled"/>
+          <Argument type="String" name="houseNumber"/>
+          <Argument type="String" name="addressLine1"/>
+          <Argument type="String" name="addressLine2"/>
+          <Argument type="String" name="city"/>
+          <Argument type="String" name="county"/>
+          <Argument type="String" name="country"/>
+          <Argument type="String" name="postcode"/>
+          <Argument type="String" name="latitude"/>
+          <Argument type="String" name="longitude"/>
+          <Argument type="String" name="telephone"/>
+          <Argument type="String" name="mobile"/>
+          <Argument type="String" name="password"/>
+          <Argument type="String" name="password2"/>
+          <Argument type="String" name="action"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpSession" name="session"/>
+        </Method>
+        <Method name="myExceptionHandler" returnType="String" visibility="public">
+          <Argument type="Exception" name="e"/>
+          <Argument type="Model" name="model"/>
+          <Argument type="HttpServletRequest" name="request"/>
+        </Method>
+      </Methods>
+    </Class>
+    <Class name="WebObjectFactory" package="org.solent.com504.oodd.cart.web" visibility="public" xPosition="824.0" yPosition="420.0">
+      <Fields>
+        <Field name="shoppingService" type="ShoppingService" visibility="package" isStatic="true"/>
+      </Fields>
+      <Constructors>
+        <Constructor visibility="private"/>
+      </Constructors>
+      <Methods>
+        <Method name="getShoppingService" returnType="ShoppingService" visibility="public" isStatic="true"/>
+        <Method name="getNewShoppingCart" returnType="ShoppingCart" visibility="public" isStatic="true"/>
+      </Methods>
+    </Class>
+  </ClassDiagramComponents>
+  <ClassDiagramRelations/>
+</ClassDiagram>

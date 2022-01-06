@@ -9,16 +9,21 @@ import java.util.List;
 import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
 
 /**
- *
- * @author cgallen
- * @author kpeacock
+ * Interface used to provide the shopping service.
+ * @author cgallen, kpeacock
  */
 public interface ShoppingService {
-    
-        public List<ShoppingItem> getAvailableItems();
-        
-        public boolean purchaseItems(ShoppingCart shoppingCart);
-        
-        public ShoppingItem getNewItemByName(String name);
+    /** 
+    * Returns a list of all {@link ShoppingItem} within the item catalog.
+    * @return a List of type {@link ShoppingItem} of all the items in the {@link ShoppingItemCatalogRepository}
+    */
+    public List<ShoppingItem> getAvailableItems();
+
+    /** 
+    * Returns a {@link ShoppingItem} where item name matches the specified parameter.
+    * @param name the name to search for.
+    * @return a {@link ShoppingItem} in the {@link ShoppingItemCatalogRepository} where item name matches the name parameter.
+    */
+    public ShoppingItem getNewItemByName(String name);
 
 }

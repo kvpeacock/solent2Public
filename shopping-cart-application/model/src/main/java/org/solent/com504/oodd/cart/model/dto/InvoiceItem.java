@@ -11,8 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- *
- * @author cgallen
+ * Class used to model invoice items.
  * @author kpeacock
  */
 @Entity
@@ -24,53 +23,79 @@ public class InvoiceItem {
     private Integer quantity=0;
     private Double price=0.0;
     
+    /**
+    * Creates an empty invoice item.
+    */
     public InvoiceItem(){
-        
-    }
-
+        }
+    /**
+    * Creates a new invoice item.
+    * @param name the name to set
+    * @param price the price to set
+    */
     public InvoiceItem(String name, Double price) {
         this.name = name;
         this.price = price;
     }
-    
+    /**
+    * @return the item id
+    */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }
-
+    /**
+    * @param id the id to set
+    */
     public void setId(Long id) {
         this.id = id;
     }
-
+    /**
+    * @return the item UUID
+    */
     public String getUuid() {
         return uuid;
     }
-
-    public void setUuid(String uuuid) {
-        this.uuid = uuuid;
+    /**
+    * @param uuid the uuid to set
+    */
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
-
+    /**
+    * @return the item name
+    */
     public String getName() {
         return name;
     }
-
+    /**
+    * @param name the name to set
+    */
     public void setName(String name) {
         this.name = name;
     }
-
+    /**
+    * @return the item quantity
+    */
     public Integer getQuantity() {
         return quantity;
     }
-
+    /**
+    * @param quantity the quantity to set
+    */
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
-
+    /**
+    * @return the item price
+    */
     public Double getPrice() {
         return price;
     }
-
+    /**
+    * @param price the price to set
+    */
     public void setPrice(Double price) {
         this.price = price;
     }

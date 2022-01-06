@@ -41,11 +41,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+/**
+ * Adds cart functionality to the home page, and functionality to the site header. 
+ * Enforces a rule where only admins can view webpages with CRUD functionality - non-admins will be redirected to the home page
+ * @author kpeacock
+ */
 @Controller
 @RequestMapping("/")
 public class MVCController {
 
     final static Logger LOG = LogManager.getLogger(MVCController.class);
+    final static Logger transactionLOG = LogManager.getLogger("Transaction_Logger");
 
     @Autowired
     ShoppingService shoppingService = null;
@@ -73,12 +80,27 @@ public class MVCController {
         return sessionUser;
     }
 
+    /**
+     * Returns the index.html webpage
+     * @param model used to access the model holder
+     * @return the index.html webpage
+     */
     // this redirects calls to the root of our application to index.html
     @RequestMapping(value = "/", method = {RequestMethod.GET, RequestMethod.POST})
     public String index(Model model) {
         return "redirect:/index.html";
     }
 
+    /**
+     * Provides cart functionality
+     * @param action the action to perform
+     * @param itemName the name of the item to access
+     * @param itemUuid the uuid of the item to access
+     * @param cart the session's cart
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the home webpage
+     */
     @RequestMapping(value = "/home", method = {RequestMethod.GET, RequestMethod.POST})
     public String viewCart(@RequestParam(name = "action", required = false) String action,
             @RequestParam(name = "itemName", required = false) String itemName,
@@ -102,15 +124,12 @@ public class MVCController {
         } else {
             switch (action) {
                 case "addItemToCart":
-                    message = "Attempting to add " + itemName + " to cart.";
-                    LOG.info(message);
                     ShoppingItem shoppingItem = shoppingService.getNewItemByName(itemName);
                     if (shoppingItem == null) {
                         message = "";
                         errorMessage = "Cannot add unknown item " + itemName + " to cart";
-                        LOG.error(message);
+                        LOG.warn(errorMessage);
                     } else {
-
                         String status = shoppingCart.addItemToCart(shoppingItem);
                         if (!"".equals(status)) {
                             message = "";
@@ -150,11 +169,7 @@ public class MVCController {
                             return "home";
                         }
                     }
-                    
-                    
-                    
-                    
-                    
+
                     shoppingCartItems.forEach((cartItem) -> {
                         ShoppingItem catalogItem = shoppingItemCatalogRepository.findByName(cartItem.getName());
                         catalogItem.setStock(catalogItem.getStock() - cartItem.getQuantity());
@@ -162,7 +177,7 @@ public class MVCController {
                     });
 
                     Invoice invoice = new Invoice();
-                    invoice.setInvoiceNumber(UUID.randomUUID().toString());
+                    invoice.setInvoiceUUID(UUID.randomUUID().toString());
                     invoice.setDateOfPurchase(new Date());
                     invoice.setAmountDue(shoppingCart.getTotal());
 
@@ -179,16 +194,16 @@ public class MVCController {
                     invoice.setPurchaser(sessionUser);
                     invoice.setStatus(InvoiceStatus.PENDING);
                     invoiceRepository.save(invoice);
-                    LOG.error(invoice.toString());
+                    LOG.info("New invoice " + invoice.getInvoiceUUID() + " generated");
+                    transactionLOG.info("Purchase made by User " + sessionUser.getUsername() + "for amount £" + invoice.getAmountDue());
 
                     shoppingCartItems.forEach((cartItem) -> {
-                        LOG.error("Attempting to delete from cart");
-                        shoppingCart.removeItemFromCart(cartItem.getUuid());
+                    shoppingCart.removeItemFromCart(cartItem.getUuid());
                     });
                     break;
                 default:
                     message = "Unknown action=" + action;
-                    LOG.error(message);
+                    LOG.warn(message);
                     break;
             }
         }
@@ -201,6 +216,12 @@ public class MVCController {
         return "home";
     }
 
+    /**
+     * Redirects the user to the about page
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the about webpage 
+     */
     @RequestMapping(value = "/about", method = {RequestMethod.GET, RequestMethod.POST})
     public String aboutCart(Model model, HttpSession session) {
 
@@ -213,6 +234,12 @@ public class MVCController {
         return "about";
     }
 
+    /**
+     * Redirects the user to the contact page
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the contact webpage
+     */
     @RequestMapping(value = "/contact", method = {RequestMethod.GET, RequestMethod.POST})
     public String contactCart(Model model, HttpSession session) {
 
@@ -225,6 +252,12 @@ public class MVCController {
         return "contact";
     }
 
+    /**
+     * Redirects admins to the catalog page
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the catalog webpage, if the user is an admin
+     */
     @RequestMapping(value = "/catalog", method = {RequestMethod.GET, RequestMethod.POST})
     public String catalogList(Model model, HttpSession session) {
         // get sessionUser from session
@@ -246,7 +279,39 @@ public class MVCController {
         model.addAttribute("selectedPage", "admin");
         return "catalog";
     }
+    /**
+     * Generates a list of all shopping items that match a specified partial name (not case sensitive)
+     * @param name the partial name to query against
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the home webpage, only showing items that match the query
+     */
+    @RequestMapping(value = "/searchStore", method = {RequestMethod.GET, RequestMethod.POST})
+    public String storeSearch(
+            @RequestParam(value = "name", required = false) String name,
+            Model model,
+            HttpSession session
+    ) {
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
 
+        List<ShoppingItem> shoppingItems = shoppingItemCatalogRepository.findByPartialName(name);
+        model.addAttribute("availableItems", shoppingItems);
+        model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+        model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+        model.addAttribute("searchedValue", name);
+
+        // used to set tab selected
+        model.addAttribute("selectedPage", "home");
+        return "home";
+    }
+
+    /**
+     * Generates a list of all invoices for a specified user
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the user invoice webpage
+     */
     @RequestMapping(value = "/userInvoices", method = {RequestMethod.GET, RequestMethod.POST})
     public String userInvoiceList(Model model, HttpSession session) {
         User sessionUser = getSessionUser(session);
@@ -266,30 +331,13 @@ public class MVCController {
         return "userInvoices";
     }
     
-    @RequestMapping(value = "/invoices", method = {RequestMethod.GET, RequestMethod.POST})
-    public String invoiceList(Model model, HttpSession session) {
-        User sessionUser = getSessionUser(session);
-        model.addAttribute("sessionUser", sessionUser);
-
-        if (sessionUser.getUserRole() != UserRole.ADMINISTRATOR) {
-            model.addAttribute("errorMessage", "Access Denied");
-            model.addAttribute("availableItems", shoppingService.getAvailableItems());
-            model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
-            model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
-            return "home";
-        }
-
-        List<Invoice> invoices = invoiceRepository.findAll();
-        model.addAttribute("invoices", invoices);
-
-        // used to set tab selected
-        model.addAttribute("selectedPage", "admin");
-        return "adminInvoices";
-    }
-
-    /*
+    /**
      * Default exception handler, catches all exceptions, redirects to friendly
      * error page. Does not catch request mapping errors
+     * @param e the exception
+     * @param model used to access the model holder
+     * @param request the request made
+     * @return the error details
      */
     @ExceptionHandler(Exception.class)
     public String myExceptionHandler(final Exception e, Model model, HttpServletRequest request) {

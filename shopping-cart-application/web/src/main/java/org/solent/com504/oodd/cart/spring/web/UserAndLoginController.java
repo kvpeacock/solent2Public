@@ -35,6 +35,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * Controller used to provide handle the user functionality
+ * @author cgallen, kpeacock
+ */
 @Controller
 @RequestMapping("/")
 public class UserAndLoginController {
@@ -60,7 +64,12 @@ public class UserAndLoginController {
         }
         return sessionUser;
     }
-
+    /**
+     * Logs out of the session
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return to the home page
+     */
     @RequestMapping(value = "/logout", method = {RequestMethod.GET, RequestMethod.POST})
     public String logout(Model model,
             HttpSession session) {
@@ -72,6 +81,12 @@ public class UserAndLoginController {
         return "redirect:/home";
     }
 
+    /**
+     * Redirects to the login page
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the login page
+     */
     @RequestMapping(value = "/login", method = {RequestMethod.GET})
     @Transactional
     public String login(
@@ -90,31 +105,35 @@ public class UserAndLoginController {
             model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
             model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
             return "home";
-        
     }
-        
-
         model.addAttribute("message", message);
         model.addAttribute("errorMessage", errorMessage);
         // used to set tab selected
         model.addAttribute("selectedPage", "home");
 
         return "login";
-
     }
-
+    /**
+     * Attempts to login a user
+     * @param action the action to perform
+     * @param username the username to query against
+     * @param password the password to query against
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the home page, if the login is successful, otherwise the login page with an error message
+     */
     @RequestMapping(value = "/login", method = {RequestMethod.POST})
     @Transactional
     public String login(@RequestParam(value = "action", required = false) String action,
             @RequestParam(value = "username", required = false) String username,
             @RequestParam(value = "password", required = false) String password,
-            @RequestParam(value = "password2", required = false) String password2,
+//            @RequestParam(value = "password2", required = false) String password2,
             Model model,
             HttpSession session) {
         String message = "";
         String errorMessage = "";
 
-        LOG.debug("login for username=" + username);
+        LOG.info("login for username=" + username);
 
         // get current session modifyUser 
         User sessionUser = getSessionUser(session);
@@ -140,7 +159,7 @@ public class UserAndLoginController {
 
         if ("login".equals(action)) {
             //todo find and add modifyUser and test password
-            LOG.debug("logging in user username=" + username);
+            LOG.info("logging in user username=" + username);
             if (userList.isEmpty()) {
                 errorMessage = "cannot find user for username :" + username;
                 LOG.warn(errorMessage);
@@ -181,7 +200,7 @@ public class UserAndLoginController {
             return "home";
         } else {
             model.addAttribute("errorMessage", "unknown action requested:" + action);
-            LOG.error("login page unknown action requested:" + action);
+            LOG.warn("login page unknown action requested:" + action);
             model.addAttribute("errorMessage", errorMessage);
             // used to set tab selected
             model.addAttribute("selectedPage", "home");
@@ -192,12 +211,18 @@ public class UserAndLoginController {
         }
     }
 
+    /**
+     * Redirects the user to the register page
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the register page
+     */
     @RequestMapping(value = "/register", method = {RequestMethod.GET})
     @Transactional
-    public String registerGET(@RequestParam(value = "action", required = false) String action,
-            @RequestParam(value = "username", required = false) String username,
-            @RequestParam(value = "password", required = false) String password,
-            @RequestParam(value = "password2", required = false) String password2,
+    public String registerGET(@RequestParam(value = "action", required = false)// String action,
+//            @RequestParam(value = "username", required = false) String username,
+//            @RequestParam(value = "password", required = false) String password,
+//            @RequestParam(value = "password2", required = false) String password2,
             Model model,
             HttpSession session) {
         String message = "register new user";
@@ -213,6 +238,16 @@ public class UserAndLoginController {
         return "register";
     }
 
+    /**
+     * Attempts to register a new user
+     * @param action the action to perform
+     * @param username the username for the new account
+     * @param password the password for the new account
+     * @param password2 the value of the 'confirm password' field
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the home page if the registration was successful, else the register page with an error
+     */
     @RequestMapping(value = "/register", method = {RequestMethod.POST})
     @Transactional
     public String register(@RequestParam(value = "action", required = false) String action,
@@ -224,7 +259,7 @@ public class UserAndLoginController {
         String message = "";
         String errorMessage = "";
 
-        LOG.debug("register new username=" + username);
+        LOG.info("register new username=" + username);
 
         User sessionUser = getSessionUser(session);
         model.addAttribute("sessionUser", sessionUser);
@@ -263,17 +298,17 @@ public class UserAndLoginController {
             if (UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
                 session.setAttribute("sessionUser", modifyUser);
                 model.addAttribute("sessionUser", modifyUser);
-                LOG.debug("log in newly created user=" + modifyUser);
+                LOG.info("log in newly created user=" + modifyUser);
             }
 
-            LOG.debug("createNewAccount created new user user=" + modifyUser);
+            LOG.info("createNewAccount created new user user=" + modifyUser);
             message = "enter user details";
             model.addAttribute("modifyUser", modifyUser);
             model.addAttribute("message", message);
             model.addAttribute("errorMessage", errorMessage);
             return "viewModifyUser";
         } else {
-            LOG.debug("unknown action " + action);
+            LOG.info("unknown action " + action);
             model.addAttribute("errorMessage", "unknown action " + action);
             model.addAttribute("availableItems", shoppingService.getAvailableItems());
             model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
@@ -282,11 +317,17 @@ public class UserAndLoginController {
         }
     }
 
+    /**
+     * Redirects to the user webpage, provided the user is an admin
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return the user webpage
+     */
     @RequestMapping(value = {"/users"}, method = RequestMethod.GET)
     @Transactional
     public String users(Model model,
             HttpSession session) {
-        String message = "";
+        //String message = "";
         String errorMessage = "";
 
         User sessionUser = getSessionUser(session);
@@ -309,6 +350,13 @@ public class UserAndLoginController {
         return "users";
     }
 
+    /**
+     * Displays a specified user's details
+     * @param username the username of the user to query against
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return 
+     */
     @RequestMapping(value = {"/viewModifyUser"}, method = RequestMethod.GET)
     public String modifyuser(
             @RequestParam(value = "username", required = true) String username,
@@ -319,7 +367,7 @@ public class UserAndLoginController {
 
         model.addAttribute("selectedPage", "home");
 
-        LOG.debug("get viewModifyUser called for username=" + username);
+        LOG.info("get viewModifyUser called for username=" + username);
 
         // check secure access to modifyUser profile
         User sessionUser = getSessionUser(session);
@@ -351,7 +399,7 @@ public class UserAndLoginController {
         List<User> userList = userRepository.findByUsername(username);
         if (userList.isEmpty()) {
             errorMessage="viewModifyUser called for unknown username=" + username;
-            LOG.error(errorMessage);
+            LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
             model.addAttribute("availableItems", shoppingService.getAvailableItems());
             model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
@@ -367,6 +415,31 @@ public class UserAndLoginController {
         return "viewModifyUser";
     }
 
+    /**
+     * Updates a specified user
+     * @param username the username of the user
+     * @param firstName updates the corresponding property of the specified user
+     * @param secondName updates the corresponding property of the specified user
+     * @param userRole updates the corresponding property of the specified user
+     * @param userEnabled updates the corresponding property of the specified user
+     * @param houseNumber updates the corresponding property of the specified user
+     * @param addressLine1 updates the corresponding property of the specified user
+     * @param addressLine2 updates the corresponding property of the specified user
+     * @param city updates the corresponding property of the specified user
+     * @param county updates the corresponding property of the specified user
+     * @param country updates the corresponding property of the specified user
+     * @param postcode updates the corresponding property of the specified user
+     * @param latitude updates the corresponding property of the specified user
+     * @param longitude updates the corresponding property of the specified user
+     * @param telephone updates the corresponding property of the specified user
+     * @param mobile updates the corresponding property of the specified user
+     * @param password updates the corresponding property of the specified user
+     * @param password2 updates the corresponding property of the specified user
+     * @param action the action to perform
+     * @param model used to access the model holder
+     * @param session used to access the current session
+     * @return 
+     */
     @RequestMapping(value = {"/viewModifyUser"}, method = RequestMethod.POST)
     public String updateuser(
             @RequestParam(value = "username", required = true) String username,
@@ -393,7 +466,7 @@ public class UserAndLoginController {
         String message = "";
         String errorMessage = "";
 
-        LOG.debug("post updateUser called for username=" + username);
+        LOG.info("post updateUser called for username=" + username);
 
         // security check if party is allowed to access or modify this party
         User sessionUser = getSessionUser(session);
@@ -507,9 +580,13 @@ public class UserAndLoginController {
         return "viewModifyUser";
     }
 
-    /*
+    /**
      * Default exception handler, catches all exceptions, redirects to friendly
      * error page. Does not catch request mapping errors
+     * @param e the exception
+     * @param model used to access the model holder
+     * @param request the request made
+     * @return the error details
      */
     @ExceptionHandler(Exception.class)
     public String myExceptionHandler(final Exception e, Model model,

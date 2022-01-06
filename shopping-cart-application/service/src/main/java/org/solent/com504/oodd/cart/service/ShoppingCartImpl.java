@@ -16,8 +16,6 @@ package org.solent.com504.oodd.cart.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.solent.com504.oodd.cart.model.dto.ShoppingItem;
 import org.solent.com504.oodd.cart.model.service.ShoppingCart;
 
@@ -28,9 +26,7 @@ import org.solent.com504.oodd.cart.model.service.ShoppingCart;
  */
 public class ShoppingCartImpl implements ShoppingCart {
     
-    final static Logger LOG = LogManager.getLogger(ShoppingCartImpl.class);
-
-    private HashMap<String, ShoppingItem> itemMap = new HashMap<String, ShoppingItem>();
+    private final HashMap<String, ShoppingItem> itemMap = new HashMap<>();
 
     @Override
     public List<ShoppingItem> getShoppingCartItems() {
@@ -77,14 +73,10 @@ public class ShoppingCartImpl implements ShoppingCart {
     @Override
     public double getTotal() {
         double total = 0;
-
         for (String itemUUID : itemMap.keySet()) {
             ShoppingItem shoppingCartItem = itemMap.get(itemUUID);
             total = total + shoppingCartItem.getPrice() * shoppingCartItem.getQuantity();
         }
-
         return total;
-
     }
-
 }

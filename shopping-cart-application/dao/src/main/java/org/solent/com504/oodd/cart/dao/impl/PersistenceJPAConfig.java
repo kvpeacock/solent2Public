@@ -33,6 +33,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "org.solent.com504.oodd.cart.dao.impl")
 // @PropertySource("classpath:persistence-test.properties") // set in calling configuration
+/**
+ * @author cgallen
+ */
 public class PersistenceJPAConfig {
 
     @Autowired

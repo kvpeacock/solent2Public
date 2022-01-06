@@ -22,7 +22,7 @@
         <tbody>
             <c:forEach var="invoice" items="${invoices}">
                 <tr>
-                    <td>${invoice.invoiceNumber}</td>
+                    <td>${invoice.invoiceUUID}</td>
                     <td>${invoice.dateOfPurchase}</td>
                     <td>${invoice.amountDue}</td>
                     <td>${invoice.status}</td>
@@ -30,7 +30,7 @@
                     <td>
                         <!-- post avoids url encoded parameters -->
                         <form action="./viewModifyInvoice" method="GET">
-                            <input type="hidden" name="invoiceNumber" value="${invoice.invoiceNumber}">
+                            <input type="hidden" name="invoiceNumber" value="${invoice.invoiceUUID}">
                             <button class="btn" type="submit" >View Full Details</button>
                         </form> 
                     </td>

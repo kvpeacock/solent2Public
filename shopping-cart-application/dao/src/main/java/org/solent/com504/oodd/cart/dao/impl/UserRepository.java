@@ -20,17 +20,33 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-/**
- *
- * @author cgallen
- */
+/** 
+* A JpaRepository used to store type {@link User}. 
+* @see org.springframework.data.jpa.repository.JpaRepository;
+* @author cgallen, kpeacock
+*/
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("select u from User u where u.username = :username")
+        
+    /** 
+    * A Spring Query that returns a list of type {@link User} where user.username matches the specified parameter. 
+    * @param username The username that should be queried against.
+    * @return A List of {@link User} objects, where the username matches the <code>username</code> parameter.
+    * @see org.springframework.data.jpa.repository.Query;
+    */
+    @Query("SELECT u FROM User u WHERE u.username = :username")
     public List<User> findByUsername(@Param("username")String username);
 
-    @Query("select u from User u where u.firstName = :firstName and u.secondName = :secondName")
+    /** 
+    * A Spring Query that returns a list of type {@link User} where user.firstName matches the firstName parameter,
+    * and user.secondName matches the secondName parameter.
+    * @param firstName The <code>firstName</code> that should be queried against.
+    * @param secondName The <code>secondName</code> that should be queried against.
+    * @return A List of {@link User} objects, where the username matches the <code>username</code> parameter.
+    * @see org.springframework.data.jpa.repository.Query;
+    */
+    @Query("SELECT u FROM User u WHERE u.firstName = :firstName and u.secondName = :secondName")
     public List<User> findByNames(@Param("firstName") String firstName, @Param("secondName") String secondName);
 
 }

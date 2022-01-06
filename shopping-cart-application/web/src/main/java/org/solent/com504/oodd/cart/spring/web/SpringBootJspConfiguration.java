@@ -24,17 +24,20 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.web.context.WebApplicationContext;
 
+/**
+ * 
+ * @author cgallen, kpeacock
+ */
 @Configuration
 @Import(ServiceConfiguration.class)
 @PropertySource("classpath:persistence-app.properties")
 public class SpringBootJspConfiguration {
-//
-//    @Bean
-//    ShoppingService getShoppingService() {
-//        return ServiceObjectFactory.getShoppingService();
-//    }
 
-    // see https://www.baeldung.com/spring-mvc-session-attributes
+    /**
+     * 
+     * @return a new shopping cart object
+     * @see https://www.baeldung.com/spring-mvc-session-attributes
+     */
     @Bean
     @Scope(value = WebApplicationContext.SCOPE_SESSION,
             proxyMode = ScopedProxyMode.TARGET_CLASS)
