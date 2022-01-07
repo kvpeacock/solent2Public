@@ -118,6 +118,7 @@ public class UserAndLoginController {
      * @param action the action to perform
      * @param username the username to query against
      * @param password the password to query against
+     * @param password2
      * @param model used to access the model holder
      * @param session used to access the current session
      * @return the home page, if the login is successful, otherwise the login page with an error message
@@ -127,7 +128,7 @@ public class UserAndLoginController {
     public String login(@RequestParam(value = "action", required = false) String action,
             @RequestParam(value = "username", required = false) String username,
             @RequestParam(value = "password", required = false) String password,
-//            @RequestParam(value = "password2", required = false) String password2,
+            @RequestParam(value = "password2", required = false) String password2,
             Model model,
             HttpSession session) {
         String message = "";
@@ -213,16 +214,20 @@ public class UserAndLoginController {
 
     /**
      * Redirects the user to the register page
+     * @param action the action to perform
+     * @param username the username for the new account
+     * @param password the password for the new account
+     * @param password2 the value of the 'confirm password' field
      * @param model used to access the model holder
      * @param session used to access the current session
      * @return the register page
      */
     @RequestMapping(value = "/register", method = {RequestMethod.GET})
     @Transactional
-    public String registerGET(@RequestParam(value = "action", required = false)// String action,
-//            @RequestParam(value = "username", required = false) String username,
-//            @RequestParam(value = "password", required = false) String password,
-//            @RequestParam(value = "password2", required = false) String password2,
+    public String registerGET(@RequestParam(value = "action", required = false) String action,
+            @RequestParam(value = "username", required = false) String username,
+            @RequestParam(value = "password", required = false) String password,
+            @RequestParam(value = "password2", required = false) String password2,
             Model model,
             HttpSession session) {
         String message = "register new user";

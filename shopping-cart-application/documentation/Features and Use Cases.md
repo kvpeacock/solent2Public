@@ -52,41 +52,38 @@ The basic features required for this application are:
     * Update details for any account (except default payment card)
     * Deactivate any account
     
-
 The following requirements are written from the perspective of what different users need from the application:
-
 
 | Use case ID 	| Actor 	| Action | Software Reaction |
 | ----------- 	| ----------| ----------- | ----------- |
-| UC1			| Any 		| User enters in the URL for the shopping application. | A web page opens, showing the home page of the app. The user will be set to ANONYMOUS. |
+| UC1			| Any 		| User enters in any URL for a valid webpage within the shopping application. | The corresponding webpage opens. |
 | UC2			| Any 		| User requests to create an account.	| The account registration page is loaded. If all fields are valid, an account is created. |
 | UC3			| Any 		| User requests to login. | The login page is loaded. If all fields are valid, and the specified account exists, the user will be logged in |
 | UC4			| Any 		| User requests to logout. | The user is logged out. The user will be set to ANONYMOUS. |
 | UC5			| Any		| User requests the app to perform any action. | The program must be able to complete user requests within 1 second. |
 | UC6			| Any 		| User enters invalid data in an input field. | The form submission is rejected, and an error message about the invalid field is displayed. |
-| UC6			| Any 		| User enters invalid data in an input field. | The form submission is rejected, and an error message about the invalid field is displayed. |
-| UC7			| Customer 	| Customer requests to add an item to their cart. | Provided the item is in stock, the item is added to the cart. If not, a useful error message will be shown. |
-| UC8			| Customer	| Customer requests to remove an item from their cart. | The item is removed from the cart. |
-| UC9			| Customer 	| Customer requests to search for an item. | The item list is updated to match the search query. |
-| UC10			| Customer 	| Customer requests to purchase the items in their cart. | If there is enough stock to fulfil their order, they will be asked to confirm the transaction. Otherwise, an error message will be displayed informing them that an item stock level was not high enough. |
-| UC11			| Customer 	| Customer confirms a purchase transaction. | If there is enough stock, the application transfers money from the user’s credit card equal to the total amount required by the order, and an invoice is generated. If there is not enough money in the account, or if the user has not entered a valid card, the transaction is rejected. |
-| UC12			| Customer 	| Customer confirms a purchase transaction. | The application stores all transactions locally in a log file. The CVV number must not be stored by the application. |
-| UC13			| Customer  	| A transaction is successful. | Item stock levels are updated. Invoice status is set to PENDING.|
-| UC14			| Customer 	| A transaction is rejected. | Invoice status is set to REJECTED. User is returned to the home page, notified of the particular error. |
-| UC15			| Customer 	| Customer requests to view their invoices. | The application displays their previous invoices. |
-| UC16			| Customer 	| Customer requests to view their account details. | The application displays their account details. |
-| UC17			| Customer	| Customer requests to update their account details. | Provided all fields are valid, the user details are updated. |
-| UC18			| Admin 	| Admin configures the shopkeeper card properties file. | The credentials of the card need to be stored securely in a local properties file. |
-| UC19			| Admin		| Admin starts up the application. | The properties file is read on start-up, automatically recognising the shopkeeper's card. |
-| UC20			| Admin		| Admin tries to view a log of all transactions. | All transactions, both successful and rejected, undertaken by users must be stored locally in a logfile; this logfile must be accessible for only admins and stored locally. |
-| UC21			| Admin		| Admin requests to view the catalog | A list of all catalog items is displayed. |
-| UC22			| Admin		| Admin requests to view a catalog item | The catalog item details are displayed. |
-| UC23			| Admin		| Admin requests to update a catalog item | Provided all fields are valid, the catalog item details are updated. |
-| UC24			| Admin		| Admin requests to delete a catalog item | The item is deleted. Any references to the item within user carts are removed. |
-| UC25			| Admin		| Admin requests to view all users | A list of all users is displayed. |
-| UC26			| Admin		| Admin requests to view a user's details. | The specified user details are displayed. |
-| UC27			| Admin		| Admin requests to update a user's details | Provided all fields are correct, the user details are updated. |
-| UC28			| Admin		| Admin requests to delete a user. | Provided the user is not signed in, the user is deleted. |
+| UC7			| Any 		| User enters valid data in an input field. | The form submission is accepted, and the required process are performed. |
+| UC8			| Customer 	| Customer requests to add an item to their cart. | Provided the item is in stock, the item is added to the cart. If not, a useful error message will be shown. |
+| UC9			| Customer	| Customer requests to remove an item from their cart. | The item is removed from the cart. |
+| UC10			| Customer 	| Customer requests to search for an item. | The item list is updated to match the search query. |
+| UC11			| Customer 	| Customer requests to purchase the items in their cart. | If there is enough stock to fulfil their order, they will be asked to confirm the transaction. Otherwise, an error message will be displayed informing them that an item stock level was not high enough. |
+| UC12			| Customer 	| Customer confirms a purchase transaction. | If there is enough stock, the application transfers money from the user's credit card equal to the total amount required by the order, and an invoice is generated. If there is not enough money in the account, or if the user has not entered a valid card, the transaction is rejected. |
+| UC13			| Customer 	| Customer confirms a purchase transaction. | The application stores all transactions locally in a log file. The CVV number must not be stored by the application. |
+| UC14			| Customer  	| A transaction is successful. | Item stock levels are updated. Invoice status is set to PENDING.|
+| UC15			| Customer 	| A transaction is rejected. | Invoice status is set to REJECTED. User is returned to the home page, notified of the particular error. |
+| UC16			| Customer 	| Customer requests to view their invoices. | The application displays their previous invoices. |
+| UC17			| Customer 	| Customer requests to view their account details. | The application displays their account details. |
+| UC18			| Customer	| Customer requests to update their account details. | Provided all fields are valid, the user details are updated. |
+| UC19			| Admin 	| Admin configures the shopkeeper card properties file. | The credentials of the card need to be stored securely in a local properties file. |
+| UC20			| Admin		| Admin starts up the application. | The properties file is read on start-up, automatically recognising the shopkeeper's card. |
+| UC21			| Admin		| Admin tries to view a log of all transactions. | All transactions, both successful and rejected, undertaken by users must be stored locally in a logfile; this logfile must be accessible for only admins and stored locally. |
+| UC22			| Admin		| Admin requests to view the catalog | A list of all catalog items is displayed. |
+| UC23			| Admin		| Admin requests to view a catalog item | The catalog item details are displayed. |
+| UC24			| Admin		| Admin requests to update a catalog item | Provided all fields are valid, the catalog item details are updated. |
+| UC25			| Admin		| Admin requests to delete a catalog item | The item is deleted. Any references to the item within user carts are removed. |
+| UC26			| Admin		| Admin requests to view all users | A list of all users is displayed. |
+| UC27			| Admin		| Admin requests to view a user's details. | The specified user details are displayed. |
+| UC28			| Admin		| Admin requests to update a user's details | Provided all fields are correct, the user details are updated. |
 | UC29			| Admin		| Admin requests to view all invoices. | A list of all invoices is displayed. |
 | UC30			| Admin		| Admin requests to view an invoice's details. | The specified invoice details are displayed. |
 | UC31			| Admin		| Admin requests to update an invoice status. | The invoice status is updated. |

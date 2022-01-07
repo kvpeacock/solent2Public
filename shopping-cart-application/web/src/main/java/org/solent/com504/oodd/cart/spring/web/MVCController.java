@@ -152,6 +152,14 @@ public class MVCController {
                         return "home";
                     }
                     List<ShoppingItem> shoppingCartItems = shoppingCart.getShoppingCartItems();
+                    if (shoppingCartItems.isEmpty()) {
+                        model.addAttribute("errorMessage", "You must have an item in your cart first.");
+                        model.addAttribute("availableItems", shoppingService.getAvailableItems());
+                        model.addAttribute("shoppingCartItems", shoppingCart.getShoppingCartItems());
+                        model.addAttribute("shoppingcartTotal", shoppingCart.getTotal());
+                        return "home";
+                    }
+                    
                     for (ShoppingItem cartItem : shoppingCartItems) {
                         ShoppingItem catalogItem = shoppingItemCatalogRepository.findByName(cartItem.getName());
                         Integer newStock = catalogItem.getStock() - cartItem.getQuantity();

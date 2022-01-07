@@ -8,7 +8,7 @@
 <jsp:include page="header.jsp" />
 <!-- Begin page content -->
 <main role="main" class="container">
-    <H1>Test</H1>
+    <H1>About</H1>
 </main>
 
 
